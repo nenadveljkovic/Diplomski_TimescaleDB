@@ -14,6 +14,9 @@ import { BsThermometerSun } from 'react-icons/bs';
 import { GiSunRadiations } from 'react-icons/gi';
 import { WiHumidity } from 'react-icons/wi';
 import { FaWind } from 'react-icons/fa';
+import { usePromiseTracker, trackPromise } from 'react-promise-tracker';
+import { ThreeDots} from 'react-loader-spinner';
+
 
 import './Conditions.css'
 
@@ -239,7 +242,7 @@ export function Conditions(props){
             setDevices(json);
             setSelectedDevice(json[0].device_id);
         }
-        fetchData().catch(console.error);
+        trackPromise(fetchData().catch(console.error));
     }, []);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
     const [dates, setDates] = useState([]);
@@ -251,7 +254,7 @@ export function Conditions(props){
             setDates(json);
             setSelectedDate(json[0]);
         }
-        fetchData().catch(console.error);
+        trackPromise(fetchData().catch(console.error));
     }, [selectedDevice]);
     const [conditions, setConditions] = useState([]);
     useEffect(() => {
@@ -260,7 +263,7 @@ export function Conditions(props){
             const json = await data.json();
             setConditions(json);
         }
-        fetchData().catch(console.error);
+        trackPromise(fetchData().catch(console.error));
     }, [selectedDevice, selectedDate]);
     useEffect(() => {
         const updateChartData = () => {
@@ -319,6 +322,7 @@ export function Conditions(props){
         }
         updateChartData();
     }, [conditions]);
+    const { promiseInProgress } = usePromiseTracker();
     const radios = [
         { name: 'Temperatura', value: '0' },
         { name: 'Vlažnost vazduha', value: '1' },
@@ -337,104 +341,125 @@ export function Conditions(props){
     const handleButtonClick = (value) => {
         setSelectedDate(value)
     };
-    return (
-        <Container>
-            <Row>
-                <Col sm={1}>
-                </Col>
-                <Col sm={10}>
-                    
-                </Col>
-                <Col sm={1}>
-                </Col>
-            </Row>
-            <Row>
-                <Col sm={2}>
-                </Col>
-                <Col sm={2}>
-                    <DropdownButton id="dropdown-basic-button" title="Uređaj" onSelect={setDropdownValue}>                       
-                        {
-                            devices.map((device, idx) => (
-                                <Dropdown.Item
-                                    key={idx}
-                                    eventKey={device.device_id}
-                                    active={device.device_id === selectedDevice ? true : false}>
-                                    {device.device_id} - {device.location}
-                                </Dropdown.Item>
-                        ))}
-                    </DropdownButton>
-                </Col>
-                <Col sm={8}>
-                    <Container>
-                        <ToggleButtonGroup name="radio" type="radio" size="sm">
+
+    if (promiseInProgress) {
+        return (
+            <div style={{
+                width: "100%",
+                height: "100",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",             
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)'
+            }}>
+                <ThreeDots color="rgba(98, 182, 239,1)" height="100" width="100" />
+            </div >
+        );
+    }
+    else {
+        return (
+
+            <Container>
+                <Row>
+                    <Col sm={1}>
+                    </Col>
+                    <Col sm={10}>
+
+                    </Col>
+                    <Col sm={1}>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col sm={2}>
+                    </Col>
+                    <Col sm={2}>
+                        <DropdownButton id="dropdown-basic-button" title="Uređaj" onSelect={setDropdownValue}>
                             {
-                                radios.map((radio, idx) => (
-                                    <ToggleButton
-                                        className="btn"
+                                devices.map((device, idx) => (
+                                    <Dropdown.Item
                                         key={idx}
-                                        id={`radio-${idx}`}
-                                        variant={selectedCondition[idx] ? 'primary' : 'outline-primary'}
-                                        value={radio.value}
-                                        onChange={(e) => setRadioValue(e.currentTarget.value)}
-                                    >
-                                        {radio.name}
-                                    </ToggleButton>
+                                        eventKey={device.device_id}
+                                        active={device.device_id === selectedDevice ? true : false}>
+                                        {device.device_id} - {device.location}
+                                    </Dropdown.Item>
                                 ))}
-                        </ToggleButtonGroup>
-                    </Container>                    
-                </Col>
-            </Row>
-            <Row>
-                <Col sm={2}>
-                </Col>
-                <Col sm={8}>
-                    {
-                        selectedCondition[0]
-                        &&
+                        </DropdownButton>
+                    </Col>
+                    <Col sm={8}>
                         <Container>
-                            <h3 className="mt-5"><BsThermometerSun /> Temperatura</h3>
-                            <Line data={dataLineTemperature} options={temperature_line_chart_options} />
+                            <ToggleButtonGroup name="radio" type="radio" size="sm">
+                                {
+                                    radios.map((radio, idx) => (
+                                        <ToggleButton
+                                            className="btn"
+                                            key={idx}
+                                            id={`radio-${idx}`}
+                                            variant={selectedCondition[idx] ? 'primary' : 'outline-primary'}
+                                            value={radio.value}
+                                            onChange={(e) => setRadioValue(e.currentTarget.value)}
+                                        >
+                                            {radio.name}
+                                        </ToggleButton>
+                                    ))}
+                            </ToggleButtonGroup>
                         </Container>
-                    }
-                    {
-                        selectedCondition[1]
-                        &&
-                        <Container>
-                            <h3 className="mt-5"><WiHumidity /> Vlažnost vazduha</h3>
-                            <Bar data={dataBarHumidity} options={humidity_bar_chart_options} />
-                        </Container>
-                    }
-                    {
-                        selectedCondition[2]
-                        &&
-                        <Container>
-                            <h3 className="mt-5"><FaWind /> Brzina vetra</h3>
-                            <Line data={dataLineWindSpeed} options={windspeed_line_chart_options} />
-                        </Container>
-                    }
-                    {
-                        selectedCondition[3]
-                        &&
-                        <Container>
-                            <h3 className="mt-5"><GiSunRadiations /> UV indeks</h3>
-                            <Bar data={dataBarUV} options={uvindex_bar_chart_options} />
-                        </Container>
-                    }
-                </Col>
-                <Col sm={2}>
-                </Col>
-            </Row>
-            <br />
-            <Row className="text-center">
-                <Col>
-                    {dates.map((date, i) =>
-                        <Button variant={date === selectedDate ? 'primary' : 'outline-primary'} size="lg"
-                            key={i} value={date}
-                            onClick={(e) => handleButtonClick(e.target.value)}>{date}</Button>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col sm={2}>
+                    </Col>
+                    <Col sm={8}>
+                        {
+                            selectedCondition[0]
+                            &&
+                            <Container>
+                                <h3 className="mt-5"><BsThermometerSun /> Temperatura</h3>
+                                <Line data={dataLineTemperature} options={temperature_line_chart_options} />
+                            </Container>
+                        }
+                        {
+                            selectedCondition[1]
+                            &&
+                            <Container>
+                                <h3 className="mt-5"><WiHumidity /> Vlažnost vazduha</h3>
+                                <Bar data={dataBarHumidity} options={humidity_bar_chart_options} />
+                            </Container>
+                        }
+                        {
+                            selectedCondition[2]
+                            &&
+                            <Container>
+                                <h3 className="mt-5"><FaWind /> Brzina vetra</h3>
+                                <Line data={dataLineWindSpeed} options={windspeed_line_chart_options} />
+                            </Container>
+                        }
+                        {
+                            selectedCondition[3]
+                            &&
+                            <Container>
+                                <h3 className="mt-5"><GiSunRadiations /> UV indeks</h3>
+                                <Bar data={dataBarUV} options={uvindex_bar_chart_options} />
+                            </Container>
+                        }
+                    </Col>
+                    <Col sm={2}>
+                    </Col>
+                </Row>
+                <br />
+                <Row className="text-center">
+                    <Col>
+                        {dates.map((date, i) =>
+                            <Button variant={date === selectedDate ? 'primary' : 'outline-primary'} size="lg"
+                                key={i} value={date}
+                                onClick={(e) => handleButtonClick(e.target.value)}>{date}</Button>
                         )
-                    } 
-                </Col>
-            </Row>
-        </Container>
-    );
+                        }
+                    </Col>
+                </Row>
+            </Container>
+            );
+    }  
 }
