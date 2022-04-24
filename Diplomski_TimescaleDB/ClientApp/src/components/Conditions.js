@@ -40,9 +40,15 @@ let temperature_line_chart_options = {
     plugins: {
         tooltip: {
             displayColors: false,
+            bodyFont: {
+                weight: "bold"
+            },
             callbacks: {
                 label: function (context) {
                     return context.dataset.label + ": " + context.formattedValue + ' \xB0C';
+                },
+                title: function (context) {
+                    return "Vreme: " + context[0].label + "h";
                 }
             }
         },
@@ -71,9 +77,15 @@ let windspeed_line_chart_options = {
     plugins: {
         tooltip: {
             displayColors: false,
+            bodyFont: {
+                weight: "bold"
+            },
             callbacks: {
                 label: function (context) {
                     return context.dataset.label + ": " + context.formattedValue + " km/h";
+                },
+                title: function (context) {
+                    return "Vreme: " + context[0].label + "h";
                 }
             }
         },
@@ -102,9 +114,15 @@ let humidity_bar_chart_options = {
     plugins: {
         tooltip: {
             displayColors: false,
+            bodyFont: {
+                weight: "bold"
+            },
             callbacks: {
                 label: function (context) {
                     return context.dataset.label + ": " + context.formattedValue + " %";
+                },
+                title: function (context) {
+                    return "Vreme: " + context[0].label + "h";
                 }
             }
         },
@@ -133,8 +151,13 @@ let uvindex_bar_chart_options = {
     plugins: {
         tooltip: {
             displayColors: false,
-            callbacks: {
-
+            bodyFont: {
+                weight: "bold"
+            },
+            callbacks: {    
+                title: function (context) {
+                    return "Vreme: " + context[0].label + "h";
+                }
             }
         },
         legend: {
@@ -247,12 +270,14 @@ export function Conditions(props){
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
     const [dates, setDates] = useState([]);
     const [selectedDate, setSelectedDate] = useState('');
+    const [change, setChange] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetch(`api/weatherconditions/getdates/${selectedDevice}`);
             const json = await data.json();
             setDates(json);
             setSelectedDate(json[0]);
+            setChange(!change);
         }
         trackPromise(fetchData().catch(console.error));
     }, [selectedDevice]);
@@ -264,7 +289,7 @@ export function Conditions(props){
             setConditions(json);
         }
         trackPromise(fetchData().catch(console.error));
-    }, [selectedDevice, selectedDate]);
+    }, [change]);
     useEffect(() => {
         const updateChartData = () => {
             setdataLineTemperature((prev) => ({
@@ -339,7 +364,8 @@ export function Conditions(props){
         setSelectedDevice(value)
     };
     const handleButtonClick = (value) => {
-        setSelectedDate(value)
+        setSelectedDate(value);
+        setChange(!change);
     };
 
     if (promiseInProgress) {
