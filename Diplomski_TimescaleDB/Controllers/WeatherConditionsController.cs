@@ -96,8 +96,8 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetConditions/{deviceid}/{date}")]
-        public async Task<ActionResult<List<WeatherConditions>>> GetConditions(string deviceid, string date)
+        [Route("GetConditions/{deviceid}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetConditions(string deviceid, string fromdate, string todate)
         {
             List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
@@ -109,7 +109,7 @@ namespace Diplomski_TimescaleDB.Controllers
                     string sql = @"SELECT date_trunc('hour', time) ""hour"",c.device_id,round(avg(temperature)) avg_temp," +
                          "round(avg(humidity)) avg_hum,round(avg(wind_speed)) avg_wind,round(avg(uv_index)) avg_uvi " +
                          "FROM conditions c " +
-                         "WHERE TO_CHAR(DATE(c.time),'dd.mm.yyyy') = '" + date +
+                         "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
                          "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
                     using (var command = new NpgsqlCommand(sql, timescaleConnection))
                     {

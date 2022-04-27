@@ -15,7 +15,8 @@ import { GiSunRadiations } from 'react-icons/gi';
 import { WiHumidity } from 'react-icons/wi';
 import { FaWind } from 'react-icons/fa';
 import { usePromiseTracker, trackPromise } from 'react-promise-tracker';
-import { ThreeDots} from 'react-loader-spinner';
+import { ThreeDots } from 'react-loader-spinner';
+import DatePicker from 'react-date-picker';
 
 
 import './Conditions.css'
@@ -177,9 +178,7 @@ const datum = {
 
 export function Conditions(props){
     const [dataLineTemperature, setdataLineTemperature] = useState({
-        labels: ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00",
-            "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
-            "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+        labels: [],
         datasets: [
             {
                 label: "Temperatura",
@@ -203,9 +202,7 @@ export function Conditions(props){
         ]
     });
     const [dataLineWindSpeed, setdataLineWindSpeed] = useState({
-        labels: ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00",
-            "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
-            "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+        labels: [],
         datasets: [
             {
                 label: "Brzina vetra",
@@ -229,13 +226,11 @@ export function Conditions(props){
         ]
     });
     const [dataBarHumidity, setdataBarHumidity] = useState({
-        labels: ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00",
-            "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
-            "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+        labels: [],
         datasets: [
             {
                 label: "Vlažnost vazduha",
-                data: [12, 19, 3, 5, 2, 3],
+                data: [],
                 backgroundColor: "rgba(98,  182, 239,0.4)",
                 borderWidth: 2,
                 borderColor: "rgba(98,  182, 239,1)"
@@ -243,13 +238,11 @@ export function Conditions(props){
         ]
     });
     const [dataBarUV, setdataBarUV] = useState({
-        labels: ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", "08:00",
-            "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00",
-            "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"],
+        labels: [],
         datasets: [
             {
                 label: "UV indeks",
-                data: [12, 19, 3, 5, 2, 3],
+                data: [],
                 backgroundColor: [],
                 borderWidth: 2,
                 borderColor: []
@@ -268,32 +261,25 @@ export function Conditions(props){
         trackPromise(fetchData().catch(console.error));
     }, []);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
-    const [dates, setDates] = useState([]);
-    const [selectedDate, setSelectedDate] = useState('');
-    const [change, setChange] = useState(true);
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await fetch(`api/weatherconditions/getdates/${selectedDevice}`);
-            const json = await data.json();
-            setDates(json);
-            setSelectedDate(json[0]);
-            setChange(!change);
-        }
-        trackPromise(fetchData().catch(console.error));
-    }, [selectedDevice]);
+    const [fromDate, setFromDate] = useState(new Date());
+    const [toDate, setToDate] = useState(new Date());
     const [conditions, setConditions] = useState([]);
+    const [rangeChanged, setRangeChanged] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetch(`api/weatherconditions/getconditions/${selectedDevice}/${selectedDate}`);
+            const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
+            const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
+            const data = await fetch(`api/weatherconditions/getconditions/${selectedDevice}/${fromdate}/${todate}`);
             const json = await data.json();
             setConditions(json);
         }
         trackPromise(fetchData().catch(console.error));
-    }, [change]);
+    }, [rangeChanged]);
     useEffect(() => {
         const updateChartData = () => {
             setdataLineTemperature((prev) => ({
                 ...prev,
+                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11,16)),
                 datasets: [{
                     ...prev.datasets[0],
                     data: conditions.map(v => v.temperature)
@@ -301,6 +287,7 @@ export function Conditions(props){
             }));
             setdataLineWindSpeed((prev) => ({
                 ...prev,
+                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
                 datasets: [{
                     ...prev.datasets[0],
                     data: conditions.map(v => v.windspeed)
@@ -308,6 +295,7 @@ export function Conditions(props){
             }));
             setdataBarHumidity((prev) => ({
                 ...prev,
+                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
                 datasets: [{
                     ...prev.datasets[0],
                     data: conditions.map(v => v.humidity)
@@ -315,6 +303,7 @@ export function Conditions(props){
             }));
             setdataBarUV((prev) => ({
                 ...prev,
+                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
                 datasets: [{
                     ...prev.datasets[0],
                     data: conditions.map(v => v.uvindex),
@@ -364,8 +353,7 @@ export function Conditions(props){
         setSelectedDevice(value)
     };
     const handleButtonClick = (value) => {
-        setSelectedDate(value);
-        setChange(!change);
+        setRangeChanged(!rangeChanged);
     };
 
     if (promiseInProgress) {
@@ -388,14 +376,17 @@ export function Conditions(props){
     else {
         return (
 
-            <Container>
+            <Container>               
                 <Row>
-                    <Col sm={1}>
+                    <Col sm={2}>
                     </Col>
-                    <Col sm={10}>
-
+                    <Col sm={8}>
+                        Prikaz podataka za period od
+                        <DatePicker value={fromDate} onChange={setFromDate} />
+                        do <DatePicker value={toDate} onChange={setToDate} />
+                        <Button variant="primary" size="sm" onClick={(e) => handleButtonClick(e.target.value)}>Prikaži</Button>
                     </Col>
-                    <Col sm={1}>
+                    <Col sm={2}>
                     </Col>
                 </Row>
                 <Row>
@@ -433,11 +424,9 @@ export function Conditions(props){
                             </ToggleButtonGroup>
                         </Container>
                     </Col>
-                </Row>
+                </Row>               
                 <Row>
-                    <Col sm={2}>
-                    </Col>
-                    <Col sm={8}>
+                    <Col>
                         {
                             selectedCondition[0]
                             &&
@@ -471,20 +460,7 @@ export function Conditions(props){
                             </Container>
                         }
                     </Col>
-                    <Col sm={2}>
-                    </Col>
-                </Row>
-                <br />
-                <Row className="text-center">
-                    <Col>
-                        {dates.map((date, i) =>
-                            <Button variant={date === selectedDate ? 'primary' : 'outline-primary'} size="lg"
-                                key={i} value={date}
-                                onClick={(e) => handleButtonClick(e.target.value)}>{date}</Button>
-                        )
-                        }
-                    </Col>
-                </Row>
+                </Row>                
             </Container>
             );
     }  
