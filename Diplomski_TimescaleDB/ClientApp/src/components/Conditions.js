@@ -261,10 +261,14 @@ export function Conditions(props){
         trackPromise(fetchData().catch(console.error));
     }, []);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
+    const [selectedAggregation, setSelectedAggregation] = useState([true, false, false, false]);
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
     const [conditions, setConditions] = useState([]);
-    const [rangeChanged, setRangeChanged] = useState(true);
+    const [rangeChangedRaw, setRangeChangedRaw] = useState(true);
+    const [rangeChangedAvg, setRangeChangedAvg] = useState(true);
+    const [rangeChangedMin, setRangeChangedMin] = useState(true);
+    const [rangeChangedMax, setRangeChangedMax] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
@@ -274,7 +278,37 @@ export function Conditions(props){
             setConditions(json);
         }
         trackPromise(fetchData().catch(console.error));
-    }, [rangeChanged]);
+    }, [rangeChangedRaw]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
+            const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
+            const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${selectedDevice}/${fromdate}/${todate}`);
+            const json = await data.json();
+            setConditions(json);
+        }
+        trackPromise(fetchData().catch(console.error));
+    }, [rangeChangedAvg]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
+            const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
+            const data = await fetch(`api/weatherconditions/gethourlyminconditions/${selectedDevice}/${fromdate}/${todate}`);
+            const json = await data.json();
+            setConditions(json);
+        }
+        trackPromise(fetchData().catch(console.error));
+    }, [rangeChangedMin]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
+            const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
+            const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${selectedDevice}/${fromdate}/${todate}`);
+            const json = await data.json();
+            setConditions(json);
+        }
+        trackPromise(fetchData().catch(console.error));
+    }, [rangeChangedMax]);
     useEffect(() => {
         const updateChartData = () => {
             setdataLineTemperature((prev) => ({
@@ -343,17 +377,43 @@ export function Conditions(props){
         { name: 'Brzina vetra', value: '2' },
         { name: 'UV indeks', value: '3' }
     ];
+    const radiosAggregation = [
+        { name: 'Neobrađeni podaci', value: '0' },
+        { name: 'Prosečne vrednosti po satima', value: '1' },
+        { name: 'Minimalne vrednosti po satima', value: '2' },
+        { name: 'Maksimalne vrednosti po satima', value: '3' }
+    ];
 
     const setRadioValue = (value) => {
         setSelectedCondition((prev) => {
             return prev.map((sc, ind) => ind === Number(value) ? true:false);
         });        
     };
+    const setRadioValueAggregation = (value) => {
+        setSelectedAggregation((prev) => {
+            return prev.map((sc, ind) => ind === Number(value) ? true : false);
+        });
+        if (value === "0")
+            setRangeChangedRaw(!rangeChangedRaw);
+        else if (value === "1")
+            setRangeChangedAvg(!rangeChangedAvg);
+        else if (value === "2")
+            setRangeChangedMin(!rangeChangedMin);
+        else
+            setRangeChangedMax(!rangeChangedMax);
+    };
     const setDropdownValue = (value) => {
         setSelectedDevice(value)
     };
     const handleButtonClick = (value) => {
-        setRangeChanged(!rangeChanged);
+        if (selectedAggregation[0])
+            setRangeChangedRaw(!rangeChangedRaw)
+        else if (selectedAggregation[1])
+            setRangeChangedAvg(!rangeChangedAvg)
+        else if (selectedAggregation[2])
+            setRangeChangedMin(!rangeChangedMin)
+        else
+            setRangeChangedMax(!rangeChangedMax)
     };
 
     if (promiseInProgress) {
@@ -393,7 +453,7 @@ export function Conditions(props){
                     <Col sm={2}>
                     </Col>
                     <Col sm={2}>
-                        <DropdownButton id="dropdown-basic-button" title="Uređaj" onSelect={setDropdownValue}>
+                        <DropdownButton id="dropdown-basic-button" title="Uređaj" onSelect={setDropdownValue} size="sm">
                             {
                                 devices.map((device, idx) => (
                                     <Dropdown.Item
@@ -424,14 +484,60 @@ export function Conditions(props){
                             </ToggleButtonGroup>
                         </Container>
                     </Col>
-                </Row>               
+                </Row>
+                <Row>
+                    <Col style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                        <Button variant="primary" size="sm">Dugme1</Button>
+                        <Button variant="primary" size="sm">Dugme2</Button>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                        
+                            <ToggleButtonGroup name="radio" type="radio" size="sm">
+                                {
+                                    radiosAggregation.map((radio, idx) => (
+                                        <ToggleButton
+                                            className="btn"
+                                            key={idx}
+                                            id={`radioagg-${idx}`}
+                                            variant={selectedAggregation[idx] ? 'primary' : 'outline-primary'}
+                                            value={radio.value}
+                                            onChange={(e) => setRadioValueAggregation(e.currentTarget.value)}
+                                        >
+                                            {radio.name}
+                                        </ToggleButton>
+                                    ))}
+                            </ToggleButtonGroup>
+                        
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         {
                             selectedCondition[0]
                             &&
                             <Container>
-                                <h3 className="mt-5"><BsThermometerSun /> Temperatura</h3>
+                                {
+                                    selectedAggregation[0]
+                                    &&
+                                    <h3 className="mt-5"><BsThermometerSun />Temperatura</h3>
+                                }
+                                {
+                                    selectedAggregation[1]
+                                    &&
+                                    <h3 className="mt-5"><BsThermometerSun />Prosečna temperatura po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[2]
+                                    &&
+                                    <h3 className="mt-5"><BsThermometerSun />Minimalna temperatura po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[3]
+                                    &&
+                                    <h3 className="mt-5"><BsThermometerSun />Maksimalna temperatura po satima</h3>
+                                }
                                 <Line data={dataLineTemperature} options={temperature_line_chart_options} />
                             </Container>
                         }
@@ -439,7 +545,26 @@ export function Conditions(props){
                             selectedCondition[1]
                             &&
                             <Container>
-                                <h3 className="mt-5"><WiHumidity /> Vlažnost vazduha</h3>
+                                {
+                                    selectedAggregation[0]
+                                    &&
+                                    <h3 className="mt-5"><WiHumidity />Vlažnost vazduha</h3>
+                                }
+                                {
+                                    selectedAggregation[1]
+                                    &&
+                                    <h3 className="mt-5"><WiHumidity />Prosečna vlažnost vazduha po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[2]
+                                    &&
+                                    <h3 className="mt-5"><WiHumidity />Minimalna vlažnost vazduha po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[3]
+                                    &&
+                                    <h3 className="mt-5"><WiHumidity />Maksimalna vlažnost vazduha po satima</h3>
+                                }                              
                                 <Bar data={dataBarHumidity} options={humidity_bar_chart_options} />
                             </Container>
                         }
@@ -447,7 +572,26 @@ export function Conditions(props){
                             selectedCondition[2]
                             &&
                             <Container>
-                                <h3 className="mt-5"><FaWind /> Brzina vetra</h3>
+                                {
+                                    selectedAggregation[0]
+                                    &&
+                                    <h3 className="mt-5"><FaWind />Brzina vetra</h3>
+                                }
+                                {
+                                    selectedAggregation[1]
+                                    &&
+                                    <h3 className="mt-5"><FaWind />Prosečna brzina vetra po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[2]
+                                    &&
+                                    <h3 className="mt-5"><FaWind />Minimalna brzina vetra po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[3]
+                                    &&
+                                    <h3 className="mt-5"><FaWind />Maksimalna brzina vetra po satima</h3>
+                                }                                 
                                 <Line data={dataLineWindSpeed} options={windspeed_line_chart_options} />
                             </Container>
                         }
@@ -455,7 +599,26 @@ export function Conditions(props){
                             selectedCondition[3]
                             &&
                             <Container>
-                                <h3 className="mt-5"><GiSunRadiations /> UV indeks</h3>
+                                {
+                                    selectedAggregation[0]
+                                    &&
+                                    <h3 className="mt-5"><GiSunRadiations />UV indeks</h3>
+                                }
+                                {
+                                    selectedAggregation[1]
+                                    &&
+                                    <h3 className="mt-5"><GiSunRadiations />Prosečna vrednost UV indeksa po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[2]
+                                    &&
+                                    <h3 className="mt-5"><GiSunRadiations />Minimalna vrednost UV indeksa po satima</h3>
+                                }
+                                {
+                                    selectedAggregation[3]
+                                    &&
+                                    <h3 className="mt-5"><GiSunRadiations />Maksimalna vrednost UV indeksa po satima</h3>
+                                }                           
                                 <Bar data={dataBarUV} options={uvindex_bar_chart_options} />
                             </Container>
                         }

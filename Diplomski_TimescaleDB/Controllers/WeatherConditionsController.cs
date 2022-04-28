@@ -57,24 +57,33 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetDates/{deviceid}")]
-        public async Task<ActionResult<List<string>>> GetDates(string deviceid)
+        [Route("GetConditions/{deviceid}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetConditions(string deviceid, string fromdate, string todate)
         {
-            List<string> response = new List<string>();
+            List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
             try
             {
                 timescaleConnection.Open();
                 using (timescaleConnection)
                 {
-                    string sql = @"SELECT DISTINCT TO_CHAR(DATE(time),'dd.mm.yyyy') ""date"" FROM conditions " +
-                        "WHERE device_id = '" + deviceid + @"' ORDER BY ""date"" ASC LIMIT 3;";
+                    string sql = @"SELECT * FROM conditions c " +
+                        "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
+                         "' AND c.device_id = '" + deviceid + "' ORDER BY c.time ASC;";
                     using (var command = new NpgsqlCommand(sql, timescaleConnection))
                     {
                         using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
                         {
                             while (rdr.Read())
-                                response.Add(rdr.GetString(0));
+                                response.Add(new WeatherConditions
+                                {
+                                    time = rdr.GetDateTime(0),
+                                    deviceid = rdr.GetString(1),
+                                    temperature = rdr.GetDouble(2),
+                                    humidity = rdr.GetDouble(3),
+                                    windspeed = rdr.GetDouble(4),
+                                    uvindex = rdr.GetDouble(5)
+                                });
                         }
                     }
                 }
@@ -96,8 +105,8 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetConditions/{deviceid}/{fromdate}/{todate}")]
-        public async Task<ActionResult<List<WeatherConditions>>> GetConditions(string deviceid, string fromdate, string todate)
+        [Route("GetHourlyAvgConditions/{deviceid}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyAvgConditions(string deviceid, string fromdate, string todate)
         {
             List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
@@ -108,6 +117,106 @@ namespace Diplomski_TimescaleDB.Controllers
                 {
                     string sql = @"SELECT date_trunc('hour', time) ""hour"",c.device_id,round(avg(temperature)) avg_temp," +
                          "round(avg(humidity)) avg_hum,round(avg(wind_speed)) avg_wind,round(avg(uv_index)) avg_uvi " +
+                         "FROM conditions c " +
+                         "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
+                         "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
+                    using (var command = new NpgsqlCommand(sql, timescaleConnection))
+                    {
+                        using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
+                        {
+                            while (rdr.Read())
+                                response.Add(new WeatherConditions
+                                {
+                                    time = rdr.GetDateTime(0),
+                                    deviceid = rdr.GetString(1),
+                                    temperature = rdr.GetDouble(2),
+                                    humidity = rdr.GetDouble(3),
+                                    windspeed = rdr.GetDouble(4),
+                                    uvindex = rdr.GetDouble(5)
+                                });
+                        }
+                    }
+                }
+            }
+            catch (NpgsqlException e)
+            {
+                if (e.ErrorCode.Equals(Npgsql.PostgresErrorCodes.ConnectionException))
+                {
+                    Console.WriteLine("Greška prilikom otvaranja konekcije sa bazom" + e.Message);
+                }
+                else if (e.ErrorCode.Equals(Npgsql.PostgresErrorCodes.SyntaxErrorOrAccessRuleViolation))
+                {
+                    Console.WriteLine("Greška prilikom izvršavanja upita prema bazi" + e.Message);
+                }
+                else
+                    Console.WriteLine("Greška prilikom rada sa bazom" + e.Message);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("GetHourlyMinConditions/{deviceid}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMinConditions(string deviceid, string fromdate, string todate)
+        {
+            List<WeatherConditions> response = new List<WeatherConditions>();
+            var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
+            try
+            {
+                timescaleConnection.Open();
+                using (timescaleConnection)
+                {
+                    string sql = @"SELECT date_trunc('hour', time) ""hour"",c.device_id,round(min(temperature)) min_temp," +
+                         "round(min(humidity)) min_hum,round(min(wind_speed)) min_wind,round(min(uv_index)) min_uvi " +
+                         "FROM conditions c " +
+                         "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
+                         "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
+                    using (var command = new NpgsqlCommand(sql, timescaleConnection))
+                    {
+                        using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
+                        {
+                            while (rdr.Read())
+                                response.Add(new WeatherConditions
+                                {
+                                    time = rdr.GetDateTime(0),
+                                    deviceid = rdr.GetString(1),
+                                    temperature = rdr.GetDouble(2),
+                                    humidity = rdr.GetDouble(3),
+                                    windspeed = rdr.GetDouble(4),
+                                    uvindex = rdr.GetDouble(5)
+                                });
+                        }
+                    }
+                }
+            }
+            catch (NpgsqlException e)
+            {
+                if (e.ErrorCode.Equals(Npgsql.PostgresErrorCodes.ConnectionException))
+                {
+                    Console.WriteLine("Greška prilikom otvaranja konekcije sa bazom" + e.Message);
+                }
+                else if (e.ErrorCode.Equals(Npgsql.PostgresErrorCodes.SyntaxErrorOrAccessRuleViolation))
+                {
+                    Console.WriteLine("Greška prilikom izvršavanja upita prema bazi" + e.Message);
+                }
+                else
+                    Console.WriteLine("Greška prilikom rada sa bazom" + e.Message);
+            }
+            return Ok(response);
+        }
+
+        [HttpGet]
+        [Route("GetHourlyMaxConditions/{deviceid}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMaxConditions(string deviceid, string fromdate, string todate)
+        {
+            List<WeatherConditions> response = new List<WeatherConditions>();
+            var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
+            try
+            {
+                timescaleConnection.Open();
+                using (timescaleConnection)
+                {
+                    string sql = @"SELECT date_trunc('hour', time) ""hour"",c.device_id,round(max(temperature)) max_temp," +
+                         "round(max(humidity)) max_hum,round(max(wind_speed)) max_wind,round(max(uv_index)) max_uvi " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
                          "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
