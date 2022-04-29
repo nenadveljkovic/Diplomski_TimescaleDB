@@ -14,6 +14,7 @@ import { BsThermometerSun } from 'react-icons/bs';
 import { GiSunRadiations } from 'react-icons/gi';
 import { WiHumidity } from 'react-icons/wi';
 import { FaWind } from 'react-icons/fa';
+import { HiOutlineEmojiSad } from 'react-icons/hi'
 import { usePromiseTracker, trackPromise } from 'react-promise-tracker';
 import { ThreeDots } from 'react-loader-spinner';
 import DatePicker from 'react-date-picker';
@@ -262,6 +263,7 @@ export function Conditions(props){
     }, []);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
     const [selectedAggregation, setSelectedAggregation] = useState([true, false, false, false]);
+    const [selectedAggregationName, setSelectedAggregationName] = useState('Neobrađeni podaci');
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
     const [conditions, setConditions] = useState([]);
@@ -377,43 +379,36 @@ export function Conditions(props){
         { name: 'Brzina vetra', value: '2' },
         { name: 'UV indeks', value: '3' }
     ];
-    const radiosAggregation = [
-        { name: 'Neobrađeni podaci', value: '0' },
-        { name: 'Prosečne vrednosti po satima', value: '1' },
-        { name: 'Minimalne vrednosti po satima', value: '2' },
-        { name: 'Maksimalne vrednosti po satima', value: '3' }
+    const namesAggregation = [
+         'Neobrađeni podaci',
+         'Prosečne vrednosti po satima',
+         'Minimalne vrednosti po satima',
+         'Maksimalne vrednosti po satima',
     ];
 
     const setRadioValue = (value) => {
         setSelectedCondition((prev) => {
             return prev.map((sc, ind) => ind === Number(value) ? true:false);
         });        
-    };
-    const setRadioValueAggregation = (value) => {
-        setSelectedAggregation((prev) => {
-            return prev.map((sc, ind) => ind === Number(value) ? true : false);
-        });
-        if (value === "0")
-            setRangeChangedRaw(!rangeChangedRaw);
-        else if (value === "1")
-            setRangeChangedAvg(!rangeChangedAvg);
-        else if (value === "2")
-            setRangeChangedMin(!rangeChangedMin);
-        else
-            setRangeChangedMax(!rangeChangedMax);
-    };
+    };    
     const setDropdownValue = (value) => {
         setSelectedDevice(value)
     };
+    const setAggregationDropdownValue = (value) => {
+        setSelectedAggregationName(value)       
+    };
     const handleButtonClick = (value) => {
-        if (selectedAggregation[0])
-            setRangeChangedRaw(!rangeChangedRaw)
-        else if (selectedAggregation[1])
-            setRangeChangedAvg(!rangeChangedAvg)
-        else if (selectedAggregation[2])
-            setRangeChangedMin(!rangeChangedMin)
+        if (selectedAggregationName === 'Neobrađeni podaci')
+            setRangeChangedRaw(!rangeChangedRaw);
+        else if (selectedAggregationName === 'Prosečne vrednosti po satima')
+            setRangeChangedAvg(!rangeChangedAvg);
+        else if (selectedAggregationName === 'Minimalne vrednosti po satima')
+            setRangeChangedMin(!rangeChangedMin);
         else
-            setRangeChangedMax(!rangeChangedMax)
+            setRangeChangedMax(!rangeChangedMax);
+        setSelectedAggregation((prev) => {
+            return prev.map((sc, ind) => namesAggregation[ind] === selectedAggregationName ? true : false);
+        });
     };
 
     if (promiseInProgress) {
@@ -438,192 +433,196 @@ export function Conditions(props){
 
             <Container>               
                 <Row>
-                    <Col sm={2}>
-                    </Col>
-                    <Col sm={8}>
-                        Prikaz podataka za period od
+                    <Col>
+                        Prikaz podataka za period od &nbsp;&nbsp;&nbsp;
                         <DatePicker value={fromDate} onChange={setFromDate} />
-                        do <DatePicker value={toDate} onChange={setToDate} />
-                        <Button variant="primary" size="sm" onClick={(e) => handleButtonClick(e.target.value)}>Prikaži</Button>
-                    </Col>
-                    <Col sm={2}>
+                        &nbsp;&nbsp;&nbsp;do&nbsp;&nbsp;&nbsp;
+                        <DatePicker value={toDate} onChange={setToDate} />
                     </Col>
                 </Row>
+                <br/>
                 <Row>
-                    <Col sm={2}>
-                    </Col>
-                    <Col sm={2}>
-                        <DropdownButton id="dropdown-basic-button" title="Uređaj" onSelect={setDropdownValue} size="sm">
+                    <Col style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                        Željeni prikaz:&nbsp;
+                        <DropdownButton id="dropdown-basic-button" title={selectedAggregationName} onSelect={setAggregationDropdownValue} size="sm">
                             {
-                                devices.map((device, idx) => (
+                                namesAggregation.map((aggregation, idx) => (
                                     <Dropdown.Item
                                         key={idx}
-                                        eventKey={device.device_id}
-                                        active={device.device_id === selectedDevice ? true : false}>
-                                        {device.device_id} - {device.location}
+                                        eventKey={aggregation}
+                                        active={selectedAggregationName === aggregation ? true : false}>
+                                        {aggregation}
                                     </Dropdown.Item>
                                 ))}
-                        </DropdownButton>
-                    </Col>
-                    <Col sm={8}>
-                        <Container>
-                            <ToggleButtonGroup name="radio" type="radio" size="sm">
-                                {
-                                    radios.map((radio, idx) => (
-                                        <ToggleButton
-                                            className="btn"
-                                            key={idx}
-                                            id={`radio-${idx}`}
-                                            variant={selectedCondition[idx] ? 'primary' : 'outline-primary'}
-                                            value={radio.value}
-                                            onChange={(e) => setRadioValue(e.currentTarget.value)}
-                                        >
-                                            {radio.name}
-                                        </ToggleButton>
-                                    ))}
-                            </ToggleButtonGroup>
-                        </Container>
+                        </DropdownButton> 
                     </Col>
                 </Row>
-                <Row>
-                    <Col style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
-                        <Button variant="primary" size="sm">Dugme1</Button>
-                        <Button variant="primary" size="sm">Dugme2</Button>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
-                        
-                            <ToggleButtonGroup name="radio" type="radio" size="sm">
-                                {
-                                    radiosAggregation.map((radio, idx) => (
-                                        <ToggleButton
-                                            className="btn"
-                                            key={idx}
-                                            id={`radioagg-${idx}`}
-                                            variant={selectedAggregation[idx] ? 'primary' : 'outline-primary'}
-                                            value={radio.value}
-                                            onChange={(e) => setRadioValueAggregation(e.currentTarget.value)}
-                                        >
-                                            {radio.name}
-                                        </ToggleButton>
-                                    ))}
-                            </ToggleButtonGroup>
-                        
-                    </Col>
-                </Row>
+                <br />
                 <Row>
                     <Col>
-                        {
-                            selectedCondition[0]
-                            &&
-                            <Container>
-                                {
-                                    selectedAggregation[0]
-                                    &&
-                                    <h3 className="mt-5"><BsThermometerSun />Temperatura</h3>
-                                }
-                                {
-                                    selectedAggregation[1]
-                                    &&
-                                    <h3 className="mt-5"><BsThermometerSun />Prosečna temperatura po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[2]
-                                    &&
-                                    <h3 className="mt-5"><BsThermometerSun />Minimalna temperatura po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[3]
-                                    &&
-                                    <h3 className="mt-5"><BsThermometerSun />Maksimalna temperatura po satima</h3>
-                                }
-                                <Line data={dataLineTemperature} options={temperature_line_chart_options} />
-                            </Container>
-                        }
-                        {
-                            selectedCondition[1]
-                            &&
-                            <Container>
-                                {
-                                    selectedAggregation[0]
-                                    &&
-                                    <h3 className="mt-5"><WiHumidity />Vlažnost vazduha</h3>
-                                }
-                                {
-                                    selectedAggregation[1]
-                                    &&
-                                    <h3 className="mt-5"><WiHumidity />Prosečna vlažnost vazduha po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[2]
-                                    &&
-                                    <h3 className="mt-5"><WiHumidity />Minimalna vlažnost vazduha po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[3]
-                                    &&
-                                    <h3 className="mt-5"><WiHumidity />Maksimalna vlažnost vazduha po satima</h3>
-                                }                              
-                                <Bar data={dataBarHumidity} options={humidity_bar_chart_options} />
-                            </Container>
-                        }
-                        {
-                            selectedCondition[2]
-                            &&
-                            <Container>
-                                {
-                                    selectedAggregation[0]
-                                    &&
-                                    <h3 className="mt-5"><FaWind />Brzina vetra</h3>
-                                }
-                                {
-                                    selectedAggregation[1]
-                                    &&
-                                    <h3 className="mt-5"><FaWind />Prosečna brzina vetra po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[2]
-                                    &&
-                                    <h3 className="mt-5"><FaWind />Minimalna brzina vetra po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[3]
-                                    &&
-                                    <h3 className="mt-5"><FaWind />Maksimalna brzina vetra po satima</h3>
-                                }                                 
-                                <Line data={dataLineWindSpeed} options={windspeed_line_chart_options} />
-                            </Container>
-                        }
-                        {
-                            selectedCondition[3]
-                            &&
-                            <Container>
-                                {
-                                    selectedAggregation[0]
-                                    &&
-                                    <h3 className="mt-5"><GiSunRadiations />UV indeks</h3>
-                                }
-                                {
-                                    selectedAggregation[1]
-                                    &&
-                                    <h3 className="mt-5"><GiSunRadiations />Prosečna vrednost UV indeksa po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[2]
-                                    &&
-                                    <h3 className="mt-5"><GiSunRadiations />Minimalna vrednost UV indeksa po satima</h3>
-                                }
-                                {
-                                    selectedAggregation[3]
-                                    &&
-                                    <h3 className="mt-5"><GiSunRadiations />Maksimalna vrednost UV indeksa po satima</h3>
-                                }                           
-                                <Bar data={dataBarUV} options={uvindex_bar_chart_options} />
-                            </Container>
-                        }
+                        <Button variant="primary" size="sm" onClick={(e) => handleButtonClick(e.target.value)}>Prikaži</Button>
                     </Col>
-                </Row>                
+                </Row>
+                {
+                    conditions.length === 0
+                    &&
+                    <Container>
+                        <br /><br /><br /><br /><br /><br />
+                        <h3 className="mt-5 text-center">Nema podataka za prikaz <HiOutlineEmojiSad /></h3>
+                    </Container>                   
+                }
+                {
+                    conditions.length !== 0
+                    &&
+                    <Container>
+                        <Row>
+                            <Col sm={2}>
+                            </Col>
+                            <Col sm={2}>
+                                <DropdownButton id="dropdown-basic-button" title={selectedDevice} onSelect={setDropdownValue} size="sm">
+                                    {
+                                        devices.map((device, idx) => (
+                                            <Dropdown.Item
+                                                key={idx}
+                                                eventKey={device.device_id}
+                                                active={device.device_id === selectedDevice ? true : false}>
+                                                {device.device_id} - {device.location}
+                                            </Dropdown.Item>
+                                        ))}
+                                </DropdownButton>
+                            </Col>
+                            <Col sm={8} style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                                <ToggleButtonGroup name="radio" type="radio" size="sm">
+                                    {
+                                        radios.map((radio, idx) => (
+                                            <ToggleButton
+                                                className="btn"
+                                                key={idx}
+                                                id={`radio-${idx}`}
+                                                variant={selectedCondition[idx] ? 'primary' : 'outline-primary'}
+                                                value={radio.value}
+                                                onChange={(e) => setRadioValue(e.currentTarget.value)}
+                                            >
+                                                {radio.name}
+                                            </ToggleButton>
+                                        ))}
+                                </ToggleButtonGroup>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                {
+                                    selectedCondition[0]
+                                    &&
+                                    <Container>
+                                        {
+                                            selectedAggregation[0]
+                                            &&
+                                            <h3 className="mt-5"><BsThermometerSun />Temperatura</h3>
+                                        }
+                                        {
+                                            selectedAggregation[1]
+                                            &&
+                                            <h3 className="mt-5"><BsThermometerSun />Prosečna temperatura po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[2]
+                                            &&
+                                            <h3 className="mt-5"><BsThermometerSun />Minimalna temperatura po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[3]
+                                            &&
+                                            <h3 className="mt-5"><BsThermometerSun />Maksimalna temperatura po satima</h3>
+                                        }
+                                        <Line data={dataLineTemperature} options={temperature_line_chart_options} />
+                                    </Container>
+                                }
+                                {
+                                    selectedCondition[1]
+                                    &&
+                                    <Container>
+                                        {
+                                            selectedAggregation[0]
+                                            &&
+                                            <h3 className="mt-5"><WiHumidity />Vlažnost vazduha</h3>
+                                        }
+                                        {
+                                            selectedAggregation[1]
+                                            &&
+                                            <h3 className="mt-5"><WiHumidity />Prosečna vlažnost vazduha po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[2]
+                                            &&
+                                            <h3 className="mt-5"><WiHumidity />Minimalna vlažnost vazduha po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[3]
+                                            &&
+                                            <h3 className="mt-5"><WiHumidity />Maksimalna vlažnost vazduha po satima</h3>
+                                        }
+                                        <Bar data={dataBarHumidity} options={humidity_bar_chart_options} />
+                                    </Container>
+                                }
+                                {
+                                    selectedCondition[2]
+                                    &&
+                                    <Container>
+                                        {
+                                            selectedAggregation[0]
+                                            &&
+                                            <h3 className="mt-5"><FaWind />Brzina vetra</h3>
+                                        }
+                                        {
+                                            selectedAggregation[1]
+                                            &&
+                                            <h3 className="mt-5"><FaWind />Prosečna brzina vetra po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[2]
+                                            &&
+                                            <h3 className="mt-5"><FaWind />Minimalna brzina vetra po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[3]
+                                            &&
+                                            <h3 className="mt-5"><FaWind />Maksimalna brzina vetra po satima</h3>
+                                        }
+                                        <Line data={dataLineWindSpeed} options={windspeed_line_chart_options} />
+                                    </Container>
+                                }
+                                {
+                                    selectedCondition[3]
+                                    &&
+                                    <Container>
+                                        {
+                                            selectedAggregation[0]
+                                            &&
+                                            <h3 className="mt-5"><GiSunRadiations />UV indeks</h3>
+                                        }
+                                        {
+                                            selectedAggregation[1]
+                                            &&
+                                            <h3 className="mt-5"><GiSunRadiations />Prosečna vrednost UV indeksa po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[2]
+                                            &&
+                                            <h3 className="mt-5"><GiSunRadiations />Minimalna vrednost UV indeksa po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[3]
+                                            &&
+                                            <h3 className="mt-5"><GiSunRadiations />Maksimalna vrednost UV indeksa po satima</h3>
+                                        }
+                                        <Bar data={dataBarUV} options={uvindex_bar_chart_options} />
+                                    </Container>
+                                }
+                            </Col>
+                        </Row>
+                    </Container>
+                }                                
             </Container>
             );
     }  
