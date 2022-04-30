@@ -20,8 +20,6 @@ import { ThreeDots } from 'react-loader-spinner';
 import DatePicker from 'react-date-picker';
 
 
-import './Conditions.css'
-
 Chart.defaults.font.size = 14;
 let temperature_line_chart_options = {
     scales: {
@@ -166,15 +164,6 @@ let uvindex_bar_chart_options = {
             display: false
         }
     }
-};
-const datum = {
-    fontSize: '20px',
-    display: 'inline-flex',
-    flexFlow: 'row nowrap',
-    minHeight: '50px',
-    maxWidth: '50px',
-    alignItems: 'center',
-    justifyContent: 'space-between'
 };
 
 export function Conditions(props){
