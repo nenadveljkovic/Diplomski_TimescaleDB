@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
 import { Container } from 'reactstrap';
 import { NavMenu } from './NavMenu';
-import { Route } from 'react-router';
 import { Conditions } from './Conditions'
+import { useParams } from 'react-router';
 
-export class Layout extends Component {
-  static displayName = Layout.name;
+export function Layout () {
 
-  render () {
+    let params = useParams();
     return (
       <div>
-        <NavMenu />
-        <Container>
-            
-        </Container>
+            <NavMenu />
+            <Conditions deviceId={params.deviceId} />
       </div>
     );
-  }
 }

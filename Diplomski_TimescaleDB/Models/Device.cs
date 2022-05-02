@@ -10,5 +10,7 @@ namespace Diplomski_TimescaleDB.Models
         public string device_id { get; set; }
         public string location { get; set; }
         public string environment { get; set; }
+        public double latitude { get; set; }
+        public double longitude { get; set; }
     }
 }

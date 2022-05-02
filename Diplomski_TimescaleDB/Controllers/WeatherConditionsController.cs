@@ -34,7 +34,9 @@ namespace Diplomski_TimescaleDB.Controllers
                                 {
                                     device_id = rdr.GetString(0),
                                     location = rdr.GetString(1),
-                                    environment = rdr.GetString(2)
+                                    environment = rdr.GetString(2),
+                                    latitude = rdr.GetDouble(3),
+                                    longitude = rdr.GetDouble(4)
                                 });
                         }
                     }

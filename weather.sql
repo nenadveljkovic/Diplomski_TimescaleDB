@@ -3,6 +3,8 @@ CREATE TABLE "devices"(
     device_id    TEXT,
     location     TEXT,
     environment  TEXT,
+	latitude DOUBLE PRECISION,
+	longitude DOUBLE PRECISION,
 	PRIMARY KEY (device_id)
 );
 

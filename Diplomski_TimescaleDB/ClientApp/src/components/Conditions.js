@@ -1,4 +1,4 @@
-﻿import React, { Component, useState, useEffect} from 'react';
+﻿import React, { Component, useState, useEffect } from 'react';
 import Chart from 'chart.js/auto';
 import { Line, Bar } from 'react-chartjs-2';
 import { MDBContainer } from "mdbreact";
@@ -14,10 +14,12 @@ import { BsThermometerSun } from 'react-icons/bs';
 import { GiSunRadiations } from 'react-icons/gi';
 import { WiHumidity } from 'react-icons/wi';
 import { FaWind } from 'react-icons/fa';
-import { HiOutlineEmojiSad } from 'react-icons/hi'
+import { HiOutlineEmojiSad } from 'react-icons/hi';
+import { IoArrowBackCircleOutline } from 'react-icons/io5';
 import { usePromiseTracker, trackPromise } from 'react-promise-tracker';
 import { ThreeDots } from 'react-loader-spinner';
 import DatePicker from 'react-date-picker';
+import { Link } from 'react-router-dom';
 
 
 Chart.defaults.font.size = 14;
@@ -239,17 +241,6 @@ export function Conditions(props){
             }
         ]
     });
-    const [selectedDevice, setSelectedDevice] = useState('');
-    const [devices, setDevices] = useState([]);
-    useEffect(() => {
-        const fetchData = async () => {
-            const data = await fetch('api/weatherconditions/getdevices');
-            const json = await data.json();
-            setDevices(json);
-            setSelectedDevice(json[0].device_id);
-        }
-        trackPromise(fetchData().catch(console.error));
-    }, []);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
     const [selectedAggregation, setSelectedAggregation] = useState([true, false, false, false]);
     const [selectedAggregationName, setSelectedAggregationName] = useState('Neobrađeni podaci');
@@ -264,7 +255,7 @@ export function Conditions(props){
         const fetchData = async () => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/getconditions/${selectedDevice}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/getconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
             setConditions(json);
         }
@@ -274,7 +265,7 @@ export function Conditions(props){
         const fetchData = async () => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${selectedDevice}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
             setConditions(json);
         }
@@ -284,7 +275,7 @@ export function Conditions(props){
         const fetchData = async () => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlyminconditions/${selectedDevice}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlyminconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
             setConditions(json);
         }
@@ -294,7 +285,7 @@ export function Conditions(props){
         const fetchData = async () => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${selectedDevice}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
             setConditions(json);
         }
@@ -380,9 +371,6 @@ export function Conditions(props){
             return prev.map((sc, ind) => ind === Number(value) ? true:false);
         });        
     };    
-    const setDropdownValue = (value) => {
-        setSelectedDevice(value)
-    };
     const setAggregationDropdownValue = (value) => {
         setSelectedAggregationName(value)       
     };
@@ -420,7 +408,16 @@ export function Conditions(props){
     else {
         return (
 
-            <Container>               
+            <Container> 
+                <Row>
+                    <Col>
+                        <Link to="/">
+                            <IoArrowBackCircleOutline style={{ fontSize: 40 }}/>
+                        </Link>
+                        <br />
+                        <br />
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
                         Prikaz podataka za period od &nbsp;&nbsp;&nbsp;
@@ -464,23 +461,8 @@ export function Conditions(props){
                     conditions.length !== 0
                     &&
                     <Container>
-                        <Row>
-                            <Col sm={2}>
-                            </Col>
-                            <Col sm={2}>
-                                <DropdownButton id="dropdown-basic-button" title={selectedDevice} onSelect={setDropdownValue} size="sm">
-                                    {
-                                        devices.map((device, idx) => (
-                                            <Dropdown.Item
-                                                key={idx}
-                                                eventKey={device.device_id}
-                                                active={device.device_id === selectedDevice ? true : false}>
-                                                {device.device_id} - {device.location}
-                                            </Dropdown.Item>
-                                        ))}
-                                </DropdownButton>
-                            </Col>
-                            <Col sm={8} style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                        <Row>                           
+                            <Col style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
                                 <ToggleButtonGroup name="radio" type="radio" size="sm">
                                     {
                                         radios.map((radio, idx) => (
