@@ -6,11 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Beograd Bulevar Oslobodjenja.csv" />
+    <None Remove="Kragujevac Trg Svetog Djordja.csv" />
+    <None Remove="Nis Aleksandra medvedeva.csv" />
+    <None Remove="Pirot Srpskih vladara.csv" />
     <None Remove="podaci_conditions.csv" />
+    <None Remove="weather-pro-1_data.csv" />
+    <None Remove="weatherdata_last30days.csv" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="podaci_conditions.csv">
+    <Content Include="weather-pro-1_data.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

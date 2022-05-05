@@ -11,11 +11,11 @@ CREATE TABLE "devices"(
 DROP TABLE IF EXISTS "conditions";
 CREATE TABLE "conditions"(
     time         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    device_id    TEXT NOT NULL,
     temperature  NUMERIC,
     humidity     NUMERIC,
 	wind_speed	 NUMERIC,
 	uv_index	 NUMERIC,
+	device_id    TEXT NOT NULL,
 	PRIMARY KEY (time, device_id),
 	FOREIGN KEY (device_id) REFERENCES devices( device_id)
 );

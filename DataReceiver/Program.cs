@@ -35,8 +35,8 @@ namespace DataReceiver
                 {
                     string sql = @"INSERT INTO conditions VALUES ";
                     foreach (WeatherConditions c in weatherConditions)
-                        sql += String.Format("('{0}', '{1}', {2}, {3}, {4}, {5}),", c.time.ToString("yyyy-MM-dd HH:mm:ss"), c.deviceid, c.temperature,
-                            c.humidity, c.windspeed, c.uvindex);
+                        sql += String.Format("('{0}', {1}, {2}, {3}, {4}, '{5}'),", c.time.ToString("yyyy-MM-dd HH:mm:ss"), c.temperature,
+                            c.humidity, c.windspeed, c.uvindex, c.deviceid);
                     sql = sql.Remove(sql.Length - 1, 1);
                     sql += " ON CONFLICT DO NOTHING;";
                     using(var command = new NpgsqlCommand(sql, timescaleConnection))

@@ -79,12 +79,12 @@ namespace Diplomski_TimescaleDB.Controllers
                             while (rdr.Read())
                                 response.Add(new WeatherConditions
                                 {
-                                    time = rdr.GetDateTime(0),
-                                    deviceid = rdr.GetString(1),
-                                    temperature = rdr.GetDouble(2),
-                                    humidity = rdr.GetDouble(3),
-                                    windspeed = rdr.GetDouble(4),
-                                    uvindex = rdr.GetDouble(5)
+                                    time = rdr.GetDateTime(0),                                   
+                                    temperature = rdr.GetDouble(1),
+                                    humidity = rdr.GetDouble(2),
+                                    windspeed = rdr.GetDouble(3),
+                                    uvindex = rdr.GetDouble(4),
+                                    deviceid = rdr.GetString(5)
                                 });
                         }
                     }
@@ -117,8 +117,8 @@ namespace Diplomski_TimescaleDB.Controllers
                 timescaleConnection.Open();
                 using (timescaleConnection)
                 {
-                    string sql = @"SELECT date_trunc('hour', time) ""hour"",c.device_id,round(avg(temperature)) avg_temp," +
-                         "round(avg(humidity)) avg_hum,round(avg(wind_speed)) avg_wind,round(avg(uv_index)) avg_uvi " +
+                    string sql = @"SELECT date_trunc('hour', time) ""hour"",round(avg(temperature)) avg_temp," +
+                         "round(avg(humidity)) avg_hum,round(avg(wind_speed)) avg_wind,round(avg(uv_index)) avg_uvi,c.device_id " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
                          "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
@@ -130,11 +130,11 @@ namespace Diplomski_TimescaleDB.Controllers
                                 response.Add(new WeatherConditions
                                 {
                                     time = rdr.GetDateTime(0),
-                                    deviceid = rdr.GetString(1),
-                                    temperature = rdr.GetDouble(2),
-                                    humidity = rdr.GetDouble(3),
-                                    windspeed = rdr.GetDouble(4),
-                                    uvindex = rdr.GetDouble(5)
+                                    temperature = rdr.GetDouble(1),
+                                    humidity = rdr.GetDouble(2),
+                                    windspeed = rdr.GetDouble(3),
+                                    uvindex = rdr.GetDouble(4),
+                                    deviceid = rdr.GetString(5)
                                 });
                         }
                     }
@@ -167,8 +167,8 @@ namespace Diplomski_TimescaleDB.Controllers
                 timescaleConnection.Open();
                 using (timescaleConnection)
                 {
-                    string sql = @"SELECT date_trunc('hour', time) ""hour"",c.device_id,round(min(temperature)) min_temp," +
-                         "round(min(humidity)) min_hum,round(min(wind_speed)) min_wind,round(min(uv_index)) min_uvi " +
+                    string sql = @"SELECT date_trunc('hour', time) ""hour"",round(min(temperature)) min_temp," +
+                         "round(min(humidity)) min_hum,round(min(wind_speed)) min_wind,round(min(uv_index)) min_uvi,c.device_id " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
                          "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
@@ -180,11 +180,11 @@ namespace Diplomski_TimescaleDB.Controllers
                                 response.Add(new WeatherConditions
                                 {
                                     time = rdr.GetDateTime(0),
-                                    deviceid = rdr.GetString(1),
-                                    temperature = rdr.GetDouble(2),
-                                    humidity = rdr.GetDouble(3),
-                                    windspeed = rdr.GetDouble(4),
-                                    uvindex = rdr.GetDouble(5)
+                                    temperature = rdr.GetDouble(1),
+                                    humidity = rdr.GetDouble(2),
+                                    windspeed = rdr.GetDouble(3),
+                                    uvindex = rdr.GetDouble(4),
+                                    deviceid = rdr.GetString(5)
                                 });
                         }
                     }
@@ -217,8 +217,8 @@ namespace Diplomski_TimescaleDB.Controllers
                 timescaleConnection.Open();
                 using (timescaleConnection)
                 {
-                    string sql = @"SELECT date_trunc('hour', time) ""hour"",c.device_id,round(max(temperature)) max_temp," +
-                         "round(max(humidity)) max_hum,round(max(wind_speed)) max_wind,round(max(uv_index)) max_uvi " +
+                    string sql = @"SELECT date_trunc('hour', time) ""hour"",round(max(temperature)) max_temp," +
+                         "round(max(humidity)) max_hum,round(max(wind_speed)) max_wind,round(max(uv_index)) max_uvi,c.device_id " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
                          "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
@@ -230,11 +230,11 @@ namespace Diplomski_TimescaleDB.Controllers
                                 response.Add(new WeatherConditions
                                 {
                                     time = rdr.GetDateTime(0),
-                                    deviceid = rdr.GetString(1),
-                                    temperature = rdr.GetDouble(2),
-                                    humidity = rdr.GetDouble(3),
-                                    windspeed = rdr.GetDouble(4),
-                                    uvindex = rdr.GetDouble(5)
+                                    temperature = rdr.GetDouble(1),
+                                    humidity = rdr.GetDouble(2),
+                                    windspeed = rdr.GetDouble(3),
+                                    uvindex = rdr.GetDouble(4),
+                                    deviceid = rdr.GetString(5)
                                 });
                         }
                     }
