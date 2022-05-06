@@ -5,11 +5,9 @@ VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Diplomski_TimescaleDB", "Diplomski_TimescaleDB\Diplomski_TimescaleDB.csproj", "{104D395C-421F-4CFC-BEBB-9A4E2FA30DC4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Weather_pro_1", "Weather_pro_1\Weather_pro_1.csproj", "{9B83E377-D6DA-4EC8-A682-3C9BB5300D67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataSender", "Weather_pro_1\DataSender.csproj", "{9B83E377-D6DA-4EC8-A682-3C9BB5300D67}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataReceiver", "DataReceiver\DataReceiver.csproj", "{16740074-1ADF-42B3-BB96-8918ACF26E6D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weather_pro_2", "Weather_pro_2\Weather_pro_2.csproj", "{D9ACE3B3-1937-4933-87FD-597CC2BC275B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		{16740074-1ADF-42B3-BB96-8918ACF26E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16740074-1ADF-42B3-BB96-8918ACF26E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16740074-1ADF-42B3-BB96-8918ACF26E6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D9ACE3B3-1937-4933-87FD-597CC2BC275B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D9ACE3B3-1937-4933-87FD-597CC2BC275B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D9ACE3B3-1937-4933-87FD-597CC2BC275B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9ACE3B3-1937-4933-87FD-597CC2BC275B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
