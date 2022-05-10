@@ -255,5 +255,58 @@ namespace Diplomski_TimescaleDB.Controllers
             }
             return Ok(response);
         }
+
+        [HttpGet]
+        [Route("GetHourlyMedConditions/{deviceid}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMedConditions(string deviceid, string fromdate, string todate)
+        {
+            List<WeatherConditions> response = new List<WeatherConditions>();
+            var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
+            try
+            {
+                timescaleConnection.Open();
+                using (timescaleConnection)
+                {
+                    string sql = @"SELECT date_trunc('hour', time) ""hour""," +
+                        "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY temperature) med_temp," +
+                         "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY humidity) med_hum," +
+                         "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY wind_speed) med_wind," +
+                         "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY uv_index) med_uvi,c.device_id " +
+                         "FROM conditions c " +
+                         "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
+                         "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
+                    using (var command = new NpgsqlCommand(sql, timescaleConnection))
+                    {
+                        using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
+                        {
+                            while (rdr.Read())
+                                response.Add(new WeatherConditions
+                                {
+                                    time = rdr.GetDateTime(0),
+                                    temperature = rdr.GetDouble(1),
+                                    humidity = rdr.GetDouble(2),
+                                    windspeed = rdr.GetDouble(3),
+                                    uvindex = rdr.GetDouble(4),
+                                    deviceid = rdr.GetString(5)
+                                });
+                        }
+                    }
+                }
+            }
+            catch (NpgsqlException e)
+            {
+                if (e.ErrorCode.Equals(Npgsql.PostgresErrorCodes.ConnectionException))
+                {
+                    Console.WriteLine("Greška prilikom otvaranja konekcije sa bazom" + e.Message);
+                }
+                else if (e.ErrorCode.Equals(Npgsql.PostgresErrorCodes.SyntaxErrorOrAccessRuleViolation))
+                {
+                    Console.WriteLine("Greška prilikom izvršavanja upita prema bazi" + e.Message);
+                }
+                else
+                    Console.WriteLine("Greška prilikom rada sa bazom" + e.Message);
+            }
+            return Ok(response);
+        }
     }   
 }

@@ -242,7 +242,7 @@ export function Conditions(props){
         ]
     });
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
-    const [selectedAggregation, setSelectedAggregation] = useState([true, false, false, false]);
+    const [selectedAggregation, setSelectedAggregation] = useState([true, false, false, false,false]);
     const [selectedAggregationName, setSelectedAggregationName] = useState('Neobrađeni podaci');
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
@@ -251,6 +251,7 @@ export function Conditions(props){
     const [rangeChangedAvg, setRangeChangedAvg] = useState(true);
     const [rangeChangedMin, setRangeChangedMin] = useState(true);
     const [rangeChangedMax, setRangeChangedMax] = useState(true);
+    const [rangeChangedMed, setRangeChangedMed] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
@@ -291,6 +292,16 @@ export function Conditions(props){
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedMax]);
+    useEffect(() => {
+        const fetchData = async () => {
+            const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
+            const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
+            const data = await fetch(`api/weatherconditions/gethourlymedconditions/${props.deviceId}/${fromdate}/${todate}`);
+            const json = await data.json();
+            setConditions(json);
+        }
+        trackPromise(fetchData().catch(console.error));
+    }, [rangeChangedMed]);
     useEffect(() => {
         const updateChartData = () => {
             setdataLineTemperature((prev) => ({
@@ -364,6 +375,7 @@ export function Conditions(props){
          'Prosečne vrednosti po satima',
          'Minimalne vrednosti po satima',
          'Maksimalne vrednosti po satima',
+         'Vrednosti medijane po satima',
     ];
 
     const setRadioValue = (value) => {
@@ -381,8 +393,10 @@ export function Conditions(props){
             setRangeChangedAvg(!rangeChangedAvg);
         else if (selectedAggregationName === 'Minimalne vrednosti po satima')
             setRangeChangedMin(!rangeChangedMin);
-        else
+        else if (selectedAggregationName === 'Maksimalne vrednosti po satima')
             setRangeChangedMax(!rangeChangedMax);
+        else
+            setRangeChangedMed(!rangeChangedMed);
         setSelectedAggregation((prev) => {
             return prev.map((sc, ind) => namesAggregation[ind] === selectedAggregationName ? true : false);
         });
@@ -506,6 +520,11 @@ export function Conditions(props){
                                             &&
                                             <h3 className="mt-5"><BsThermometerSun />Maksimalna temperatura po satima</h3>
                                         }
+                                        {
+                                            selectedAggregation[4]
+                                            &&
+                                            <h3 className="mt-5"><BsThermometerSun />Medijana temperature po satima</h3>
+                                        }
                                         <Line data={dataLineTemperature} options={temperature_line_chart_options} />
                                     </Container>
                                 }
@@ -532,6 +551,11 @@ export function Conditions(props){
                                             selectedAggregation[3]
                                             &&
                                             <h3 className="mt-5"><WiHumidity />Maksimalna vlažnost vazduha po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[4]
+                                            &&
+                                            <h3 className="mt-5"><WiHumidity />Medijana vlažnosti vazduha po satima</h3>
                                         }
                                         <Bar data={dataBarHumidity} options={humidity_bar_chart_options} />
                                     </Container>
@@ -560,6 +584,11 @@ export function Conditions(props){
                                             &&
                                             <h3 className="mt-5"><FaWind />Maksimalna brzina vetra po satima</h3>
                                         }
+                                        {
+                                            selectedAggregation[4]
+                                            &&
+                                            <h3 className="mt-5"><FaWind />Medijana brzine vetra po satima</h3>
+                                        }
                                         <Line data={dataLineWindSpeed} options={windspeed_line_chart_options} />
                                     </Container>
                                 }
@@ -586,6 +615,11 @@ export function Conditions(props){
                                             selectedAggregation[3]
                                             &&
                                             <h3 className="mt-5"><GiSunRadiations />Maksimalna vrednost UV indeksa po satima</h3>
+                                        }
+                                        {
+                                            selectedAggregation[4]
+                                            &&
+                                            <h3 className="mt-5"><GiSunRadiations />Medijana vrednosti UV indeksa po satima</h3>
                                         }
                                         <Bar data={dataBarUV} options={uvindex_bar_chart_options} />
                                     </Container>
