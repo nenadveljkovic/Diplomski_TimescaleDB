@@ -20,6 +20,7 @@ import { usePromiseTracker, trackPromise } from 'react-promise-tracker';
 import { ThreeDots } from 'react-loader-spinner';
 import DatePicker from 'react-date-picker';
 import { Link } from 'react-router-dom';
+import Multiselect from 'multiselect-react-dropdown';
 
 
 Chart.defaults.font.size = 14;
@@ -47,16 +48,13 @@ let temperature_line_chart_options = {
             },
             callbacks: {
                 label: function (context) {
-                    return context.dataset.label + ": " + context.formattedValue + ' \xB0C';
+                    return "Temperatura: " + context.formattedValue + ' \xB0C';
                 },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
                 }
             }
-        },
-        legend: {
-            display: false
-        }
+        }      
     }
 };
 
@@ -84,15 +82,12 @@ let windspeed_line_chart_options = {
             },
             callbacks: {
                 label: function (context) {
-                    return context.dataset.label + ": " + context.formattedValue + " km/h";
+                    return "Brzina vetra: " + context.formattedValue + " km/h";
                 },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
                 }
             }
-        },
-        legend: {
-            display: false
         }
     }
 };
@@ -121,15 +116,12 @@ let humidity_bar_chart_options = {
             },
             callbacks: {
                 label: function (context) {
-                    return context.dataset.label + ": " + context.formattedValue + " %";
+                    return "Vlažnost vazduha: " + context.formattedValue + " %";
                 },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
                 }
             }
-        },
-        legend: {
-            display: false
         }
     }
 };
@@ -156,14 +148,14 @@ let uvindex_bar_chart_options = {
             bodyFont: {
                 weight: "bold"
             },
-            callbacks: {    
+            callbacks: {
+                label: function (context) {
+                    return "UV indeks: " + context.formattedValue;
+                },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
                 }
             }
-        },
-        legend: {
-            display: false
         }
     }
 };
@@ -173,7 +165,6 @@ export function Conditions(props){
         labels: [],
         datasets: [
             {
-                label: "Temperatura",
                 fill: true,
                 lineTension: 0.3,
                 backgroundColor: "rgba(255, 204, 0, .3)",
@@ -197,7 +188,6 @@ export function Conditions(props){
         labels: [],
         datasets: [
             {
-                label: "Brzina vetra",
                 fill: true,
                 lineTension: 0.3,
                 backgroundColor: "rgba(169, 169, 169, .3)",
@@ -221,7 +211,6 @@ export function Conditions(props){
         labels: [],
         datasets: [
             {
-                label: "Vlažnost vazduha",
                 data: [],
                 backgroundColor: "rgba(98,  182, 239,0.4)",
                 borderWidth: 2,
@@ -233,7 +222,6 @@ export function Conditions(props){
         labels: [],
         datasets: [
             {
-                label: "UV indeks",
                 data: [],
                 backgroundColor: [],
                 borderWidth: 2,
@@ -241,12 +229,14 @@ export function Conditions(props){
             }
         ]
     });
+    const [devices, setDevices] = useState([]);
+    const [selectedComparisonDevices, setselectedComparisonDevices] = useState([]);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
     const [selectedAggregation, setSelectedAggregation] = useState([true, false, false, false,false]);
     const [selectedAggregationName, setSelectedAggregationName] = useState('Neobrađeni podaci');
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
-    const [conditions, setConditions] = useState([]);
+    const [conditions, setConditions] = useState([[]]);
     const [rangeChangedRaw, setRangeChangedRaw] = useState(true);
     const [rangeChangedAvg, setRangeChangedAvg] = useState(true);
     const [rangeChangedMin, setRangeChangedMin] = useState(true);
@@ -254,11 +244,30 @@ export function Conditions(props){
     const [rangeChangedMed, setRangeChangedMed] = useState(true);
     useEffect(() => {
         const fetchData = async () => {
+            const data = await fetch('api/weatherconditions/getdevices');
+            const json = await data.json();
+            setDevices(
+                json.map(device => ({
+                    name: device.device_id + ' - ' + device.location,
+                    value: device.device_id
+                })).filter(function (obj) {
+                    return obj.value !== props.deviceId
+                })
+            );
+        }
+        trackPromise(fetchData().catch(console.error));
+    }, []);
+    useEffect(() => {
+        const fetchData = async () => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/getconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions(json);
+            //console.log(...json);
+            setConditions((prev) => [
+                ...prev,
+                json
+            ]);
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedRaw]);
@@ -268,7 +277,10 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions(json);
+            setConditions((prev) => ([
+                ...prev,
+                ...json
+            ]));
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedAvg]);
@@ -278,7 +290,10 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlyminconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions(json);
+            setConditions((prev) => ([
+                ...prev,
+                ...json
+            ]));
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedMin]);
@@ -288,7 +303,10 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions(json);
+            setConditions((prev) => ([
+                ...prev,
+                ...json
+            ]));
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedMax]);
@@ -298,7 +316,10 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlymedconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions(json);
+            setConditions((prev) => ([
+                ...prev,
+                ...json
+            ]));
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedMed]);
@@ -306,35 +327,39 @@ export function Conditions(props){
         const updateChartData = () => {
             setdataLineTemperature((prev) => ({
                 ...prev,
-                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11,16)),
+                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11,16)),
                 datasets: [{
                     ...prev.datasets[0],
-                    data: conditions.map(v => v.temperature)
+                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid:"",
+                    data: conditions[0].map(v => v.temperature)
                 }]
             }));
             setdataLineWindSpeed((prev) => ({
                 ...prev,
-                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
+                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
                 datasets: [{
                     ...prev.datasets[0],
-                    data: conditions.map(v => v.windspeed)
+                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid : "",
+                    data: conditions[0].map(v => v.windspeed)
                 }]
             }));
             setdataBarHumidity((prev) => ({
                 ...prev,
-                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
+                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
                 datasets: [{
                     ...prev.datasets[0],
-                    data: conditions.map(v => v.humidity)
+                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid : "",
+                    data: conditions[0].map(v => v.humidity)
                 }]
             }));
             setdataBarUV((prev) => ({
                 ...prev,
-                labels: conditions.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
+                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
                 datasets: [{
                     ...prev.datasets[0],
-                    data: conditions.map(v => v.uvindex),
-                    backgroundColor: conditions.map(v => {
+                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid : "",
+                    data: conditions[0].map(v => v.uvindex),
+                    backgroundColor: conditions[0].map(v => {
                         if (v.uvindex < 3)
                             return "rgb(40, 180, 99, 0.4)"
                         else if (v.uvindex < 6)
@@ -346,7 +371,7 @@ export function Conditions(props){
                         else
                             return "rgb(91, 44, 111, 0.4)"
                     }),
-                    borderColor: conditions.map(v => {
+                    borderColor: conditions[0].map(v => {
                         if (v.uvindex < 3)
                             return "rgb(40, 180, 99, 1)"
                         else if (v.uvindex < 6)
@@ -387,6 +412,7 @@ export function Conditions(props){
         setSelectedAggregationName(value)       
     };
     const handleButtonClick = (value) => {
+        setConditions([[]]);
         if (selectedAggregationName === 'Neobrađeni podaci')
             setRangeChangedRaw(!rangeChangedRaw);
         else if (selectedAggregationName === 'Prosečne vrednosti po satima')
@@ -399,7 +425,25 @@ export function Conditions(props){
             setRangeChangedMed(!rangeChangedMed);
         setSelectedAggregation((prev) => {
             return prev.map((sc, ind) => namesAggregation[ind] === selectedAggregationName ? true : false);
-        });
+        });      
+    };
+    const onSelect = (selectedList) => {
+        setselectedComparisonDevices(selectedList.map(item => item.value));
+    };
+    const onRemove = (selectedList) => {
+        setselectedComparisonDevices(selectedList.map(item => item.value));
+    };
+
+    const sortedIndex = (array, value) => {
+        var low = 0,
+            high = array.length;
+
+        while (low < high) {
+            var mid = low + high >>> 1;
+            if (array[mid] < value) low = mid + 1;
+            else high = mid;
+        }
+        return low;
     };
 
     if (promiseInProgress) {
@@ -459,12 +503,34 @@ export function Conditions(props){
                 </Row>
                 <br />
                 <Row>
+                    <Col style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                        Uporedi sa:&nbsp;&nbsp;&nbsp;
+                        <Multiselect
+                            options={devices}
+                            displayValue="name"
+                            onSelect={onSelect}
+                            onRemove={onRemove}
+                            showCheckbox
+                            placeholder="Selektuj uređaje za poređenje..."
+                            hidePlaceholder
+                            showArrow
+                            style={{                               
+                                inputField: {                              
+                                    'minWidth': '300px'                                    
+                                }
+                            }}
+                        />
+                        {conditions.length}
+                    </Col>
+                </Row>
+                <br />
+                <Row>
                     <Col>
                         <Button variant="primary" size="sm" onClick={(e) => handleButtonClick(e.target.value)}>Prikaži</Button>
                     </Col>
                 </Row>
                 {
-                    conditions.length === 0
+                    conditions[0].length === 0
                     &&
                     <Container>
                         <br /><br /><br /><br /><br /><br />
@@ -472,7 +538,7 @@ export function Conditions(props){
                     </Container>                   
                 }
                 {
-                    conditions.length !== 0
+                    conditions[0].length !== 0
                     &&
                     <Container>
                         <Row>                           

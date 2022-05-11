@@ -10,7 +10,6 @@ export default class App extends Component {
 
   render () {
     return (
-        //<Layout />
         <div>
             <Route exact path='/' component={Map} />
             <Route path='/conditions/:deviceId' component={Layout} />
