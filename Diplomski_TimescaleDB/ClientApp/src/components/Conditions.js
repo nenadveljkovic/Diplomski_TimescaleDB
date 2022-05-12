@@ -349,17 +349,20 @@ export function Conditions(props){
     }, [rangeChangedMed]);
     useEffect(() => {
         const updateChartData = () => {
+            var rarray = [];
+            for (var i = 0; i < conditions.length; i++)
+                for (var j = 0; j < conditions[i].length; j++)
+                    if (!rarray.includes(Date.parse(conditions[i][j].time)))
+                        rarray.splice(sortedIndex(rarray, Date.parse(conditions[i][j].time)), 0, Date.parse(conditions[i][j].time));
+            console.log(rarray); 
+            var lbls = rarray.map(v => {
+                var date = new Date(v);
+                return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+            });
+            console.log(lbls);
             setdataLineTemperature((prev) => ({
                 ...prev,
-                labels: function () {
-                    var rarray = [];
-                    for (var i = 0; i < conditions.length; i++)
-                        for (var j = 0; j < conditions[i].length; j++)
-                            if (!rarray.includes(Date.parse(conditions[i][j].time)))
-                                rarray.splice(sortedIndex(rarray, Date.parse(conditions[i][j].time)), 0, Date.parse(conditions[i][j].time));
-                    console.log(rarray);
-                    return rarray.map(v => v.toString().substring(0, 10) + ' ' + v.toString().substring(11, 16));
-                },
+                labels: lbls,
                 datasets: [{
                     ...prev.datasets[0],
                     label: conditions.length !== 0 ? conditions[0][0].deviceid:"",
@@ -368,14 +371,7 @@ export function Conditions(props){
             }));
             setdataLineWindSpeed((prev) => ({
                 ...prev,
-                labels: function () {
-                    var rarray = [];
-                    for (var i = 0; i < conditions.length; i++)
-                        for (var j = 0; j < conditions[i].length; j++)
-                            if (!rarray.includes(conditions[i][j]))
-                                rarray.splice(sortedIndex(rarray, conditions[i][j]), 0, conditions[i][j]);
-                    return rarray.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16));
-                },
+                labels: lbls,
                 datasets: [{
                     ...prev.datasets[0],
                     label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
@@ -384,14 +380,7 @@ export function Conditions(props){
             }));
             setdataBarHumidity((prev) => ({
                 ...prev,
-                labels: function () {
-                    var rarray = [];
-                    for (var i = 0; i < conditions.length; i++)
-                        for (var j = 0; j < conditions[i].length; j++)
-                            if (!rarray.includes(conditions[i][j]))
-                                rarray.splice(sortedIndex(rarray, conditions[i][j]), 0, conditions[i][j]);
-                    return rarray.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16));
-                },
+                labels: lbls,
                 datasets: [{
                     ...prev.datasets[0],
                     label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
@@ -400,14 +389,7 @@ export function Conditions(props){
             }));
             setdataBarUV((prev) => ({
                 ...prev,
-                labels: function () {
-                    var rarray = [];
-                    for (var i = 0; i < conditions.length; i++)
-                        for (var j = 0; j < conditions[i].length; j++)
-                            if (!rarray.includes(conditions[i][j]))
-                                rarray.splice(sortedIndex(rarray, conditions[i][j]), 0, conditions[i][j]);
-                    return rarray.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16));
-                },
+                labels: lbls,
                 datasets: [{
                     ...prev.datasets[0],
                     label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
@@ -502,6 +484,7 @@ export function Conditions(props){
         return low;
     };
 
+
     if (promiseInProgress) {
         return (
             <div style={{
@@ -575,8 +558,7 @@ export function Conditions(props){
                                     'minWidth': '300px'                                    
                                 }
                             }}
-                        />
-                        {conditions.length}
+                        />                       
                     </Col>
                 </Row>
                 <br />
