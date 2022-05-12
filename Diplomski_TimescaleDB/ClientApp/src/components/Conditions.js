@@ -236,7 +236,7 @@ export function Conditions(props){
     const [selectedAggregationName, setSelectedAggregationName] = useState('Neobrađeni podaci');
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
-    const [conditions, setConditions] = useState([[]]);
+    const [conditions, setConditions] = useState([]);
     const [rangeChangedRaw, setRangeChangedRaw] = useState(true);
     const [rangeChangedAvg, setRangeChangedAvg] = useState(true);
     const [rangeChangedMin, setRangeChangedMin] = useState(true);
@@ -263,11 +263,15 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/getconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            //console.log(...json);
-            setConditions((prev) => [
-                ...prev,
-                json
-            ]);
+            if (json.length !== 0)
+                setConditions((prev) => {
+                    var newArray = [];
+                    for (var i = 0; i < prev.length; i++)
+                        newArray[i] = prev[i].slice();
+                    newArray.push(json);
+                    console.log(newArray);
+                    return newArray;
+                });
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedRaw]);
@@ -277,10 +281,15 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions((prev) => ([
-                ...prev,
-                ...json
-            ]));
+            if (json.length !== 0)
+                setConditions((prev) => {
+                    var newArray = [];
+                    for (var i = 0; i < prev.length; i++)
+                        newArray[i] = prev[i].slice();
+                    newArray.push(json);
+                    console.log(newArray);
+                    return newArray;
+                });
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedAvg]);
@@ -290,10 +299,15 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlyminconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions((prev) => ([
-                ...prev,
-                ...json
-            ]));
+            if (json.length !== 0)
+                setConditions((prev) => {
+                    var newArray = [];
+                    for (var i = 0; i < prev.length; i++)
+                        newArray[i] = prev[i].slice();
+                    newArray.push(json);
+                    console.log(newArray);
+                    return newArray;
+                });
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedMin]);
@@ -303,10 +317,15 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions((prev) => ([
-                ...prev,
-                ...json
-            ]));
+            if (json.length !== 0)
+                setConditions((prev) => {
+                    var newArray = [];
+                    for (var i = 0; i < prev.length; i++)
+                        newArray[i] = prev[i].slice();
+                    newArray.push(json);
+                    console.log(newArray);
+                    return newArray;
+                });
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedMax]);
@@ -316,10 +335,15 @@ export function Conditions(props){
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
             const data = await fetch(`api/weatherconditions/gethourlymedconditions/${props.deviceId}/${fromdate}/${todate}`);
             const json = await data.json();
-            setConditions((prev) => ([
-                ...prev,
-                ...json
-            ]));
+            if (json.length !== 0)
+                setConditions((prev) => {
+                    var newArray = [];
+                    for (var i = 0; i < prev.length; i++)
+                        newArray[i] = prev[i].slice();
+                    newArray.push(json);
+                    console.log(newArray);
+                    return newArray;
+                });
         }
         trackPromise(fetchData().catch(console.error));
     }, [rangeChangedMed]);
@@ -327,39 +351,69 @@ export function Conditions(props){
         const updateChartData = () => {
             setdataLineTemperature((prev) => ({
                 ...prev,
-                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11,16)),
+                labels: function () {
+                    var rarray = [];
+                    for (var i = 0; i < conditions.length; i++)
+                        for (var j = 0; j < conditions[i].length; j++)
+                            if (!rarray.includes(Date.parse(conditions[i][j].time)))
+                                rarray.splice(sortedIndex(rarray, Date.parse(conditions[i][j].time)), 0, Date.parse(conditions[i][j].time));
+                    console.log(rarray);
+                    return rarray.map(v => v.toString().substring(0, 10) + ' ' + v.toString().substring(11, 16));
+                },
                 datasets: [{
                     ...prev.datasets[0],
-                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid:"",
-                    data: conditions[0].map(v => v.temperature)
+                    label: conditions.length !== 0 ? conditions[0][0].deviceid:"",
+                    data: conditions.length !== 0 ? conditions[0].map(v => v.temperature):[]
                 }]
             }));
             setdataLineWindSpeed((prev) => ({
                 ...prev,
-                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
+                labels: function () {
+                    var rarray = [];
+                    for (var i = 0; i < conditions.length; i++)
+                        for (var j = 0; j < conditions[i].length; j++)
+                            if (!rarray.includes(conditions[i][j]))
+                                rarray.splice(sortedIndex(rarray, conditions[i][j]), 0, conditions[i][j]);
+                    return rarray.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16));
+                },
                 datasets: [{
                     ...prev.datasets[0],
-                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid : "",
-                    data: conditions[0].map(v => v.windspeed)
+                    label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
+                    data: conditions.length !== 0 ? conditions[0].map(v => v.windspeed):[]
                 }]
             }));
             setdataBarHumidity((prev) => ({
                 ...prev,
-                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
+                labels: function () {
+                    var rarray = [];
+                    for (var i = 0; i < conditions.length; i++)
+                        for (var j = 0; j < conditions[i].length; j++)
+                            if (!rarray.includes(conditions[i][j]))
+                                rarray.splice(sortedIndex(rarray, conditions[i][j]), 0, conditions[i][j]);
+                    return rarray.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16));
+                },
                 datasets: [{
                     ...prev.datasets[0],
-                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid : "",
-                    data: conditions[0].map(v => v.humidity)
+                    label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
+                    data: conditions.length !== 0 ? conditions[0].map(v => v.humidity):[]
                 }]
             }));
             setdataBarUV((prev) => ({
                 ...prev,
-                labels: conditions[0].map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16)),
+                labels: function () {
+                    var rarray = [];
+                    for (var i = 0; i < conditions.length; i++)
+                        for (var j = 0; j < conditions[i].length; j++)
+                            if (!rarray.includes(conditions[i][j]))
+                                rarray.splice(sortedIndex(rarray, conditions[i][j]), 0, conditions[i][j]);
+                    return rarray.map(v => v.time.substring(0, 10) + ' ' + v.time.substring(11, 16));
+                },
                 datasets: [{
                     ...prev.datasets[0],
-                    label: conditions[0].length !== 0 ? conditions[0][0].deviceid : "",
-                    data: conditions[0].map(v => v.uvindex),
-                    backgroundColor: conditions[0].map(v => {
+                    label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
+                    data: conditions.length !== 0 ? conditions[0].map(v => v.uvindex):[],
+                    backgroundColor: conditions.length !== 0 ?
+                        conditions[0].map(v => {
                         if (v.uvindex < 3)
                             return "rgb(40, 180, 99, 0.4)"
                         else if (v.uvindex < 6)
@@ -370,8 +424,10 @@ export function Conditions(props){
                             return "rgb(169, 50, 38, 0.4)"
                         else
                             return "rgb(91, 44, 111, 0.4)"
-                    }),
-                    borderColor: conditions[0].map(v => {
+                        })
+                        : "rgb(40, 180, 99, 0.4)",
+                    borderColor: conditions.length !== 0 ?
+                        conditions[0].map(v => {
                         if (v.uvindex < 3)
                             return "rgb(40, 180, 99, 1)"
                         else if (v.uvindex < 6)
@@ -382,7 +438,7 @@ export function Conditions(props){
                             return "rgb(169, 50, 38, 1)"
                         else
                             return "rgb(91, 44, 111, 1)"
-                    })
+                        }) : "rgb(40, 180, 99, 1)"
                 }]
             }));
         }
@@ -412,7 +468,7 @@ export function Conditions(props){
         setSelectedAggregationName(value)       
     };
     const handleButtonClick = (value) => {
-        setConditions([[]]);
+        setConditions([]);
         if (selectedAggregationName === 'Neobrađeni podaci')
             setRangeChangedRaw(!rangeChangedRaw);
         else if (selectedAggregationName === 'Prosečne vrednosti po satima')
@@ -530,7 +586,7 @@ export function Conditions(props){
                     </Col>
                 </Row>
                 {
-                    conditions[0].length === 0
+                    conditions.length === 0
                     &&
                     <Container>
                         <br /><br /><br /><br /><br /><br />
@@ -538,7 +594,7 @@ export function Conditions(props){
                     </Container>                   
                 }
                 {
-                    conditions[0].length !== 0
+                    conditions.length !== 0
                     &&
                     <Container>
                         <Row>                           
