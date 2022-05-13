@@ -41,14 +41,13 @@ let temperature_line_chart_options = {
     },
     responsive: true,
     plugins: {
-        tooltip: {
-            displayColors: false,
+        tooltip: {          
             bodyFont: {
                 weight: "bold"
             },
             callbacks: {
                 label: function (context) {
-                    return "Temperatura: " + context.formattedValue + ' \xB0C';
+                    return "  Temperatura: " + context.formattedValue + ' \xB0C';
                 },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
@@ -76,13 +75,12 @@ let windspeed_line_chart_options = {
     responsive: true,
     plugins: {
         tooltip: {
-            displayColors: false,
             bodyFont: {
                 weight: "bold"
             },
             callbacks: {
                 label: function (context) {
-                    return "Brzina vetra: " + context.formattedValue + " km/h";
+                    return "  Brzina vetra: " + context.formattedValue + " km/h";
                 },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
@@ -110,13 +108,12 @@ let humidity_bar_chart_options = {
     responsive: true,
     plugins: {
         tooltip: {
-            displayColors: false,
             bodyFont: {
                 weight: "bold"
             },
             callbacks: {
                 label: function (context) {
-                    return "Vlažnost vazduha: " + context.formattedValue + " %";
+                    return " Vlažnost vazduha: " + context.formattedValue + " %";
                 },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
@@ -144,13 +141,12 @@ let uvindex_bar_chart_options = {
     responsive: true,
     plugins: {
         tooltip: {
-            displayColors: false,
             bodyFont: {
                 weight: "bold"
             },
             callbacks: {
                 label: function (context) {
-                    return "UV indeks: " + context.formattedValue;
+                    return " UV indeks: " + context.formattedValue;
                 },
                 title: function (context) {
                     return "Vreme: " + context[0].label + "h";
@@ -161,74 +157,10 @@ let uvindex_bar_chart_options = {
 };
 
 export function Conditions(props){
-    const [dataLineTemperature, setdataLineTemperature] = useState({
-        labels: [],
-        datasets: [
-            {
-                fill: true,
-                lineTension: 0.3,
-                backgroundColor: "rgba(255, 204, 0, .3)",
-                borderColor: "rgb(255, 153, 0)",
-                borderCapStyle: "butt",
-                borderDash: [],
-                borderDashOffset: 0.0,
-                borderJoinStyle: "miter",
-                pointBackgroundColor: "rgb(255, 153, 0)",
-                pointBorderWidth: 10,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: "rgb(0, 0, 0)",
-                pointHoverBorderWidth: 2,
-                pointRadius: 1,
-                pointHitRadius: 10,
-                data: []
-            }
-        ]
-    });
-    const [dataLineWindSpeed, setdataLineWindSpeed] = useState({
-        labels: [],
-        datasets: [
-            {
-                fill: true,
-                lineTension: 0.3,
-                backgroundColor: "rgba(169, 169, 169, .3)",
-                borderColor: "rgb(128,128,128)",
-                borderCapStyle: "butt",
-                borderDash: [],
-                borderDashOffset: 0.0,
-                borderJoinStyle: "miter",
-                pointBackgroundColor: "rgb(128,128,128)",
-                pointBorderWidth: 10,
-                pointHoverRadius: 5,
-                pointHoverBackgroundColor: "rgb(0, 0, 0)",
-                pointHoverBorderWidth: 2,
-                pointRadius: 1,
-                pointHitRadius: 10,
-                data: []
-            }
-        ]
-    });
-    const [dataBarHumidity, setdataBarHumidity] = useState({
-        labels: [],
-        datasets: [
-            {
-                data: [],
-                backgroundColor: "rgba(98,  182, 239,0.4)",
-                borderWidth: 2,
-                borderColor: "rgba(98,  182, 239,1)"
-            }
-        ]
-    });
-    const [dataBarUV, setdataBarUV] = useState({
-        labels: [],
-        datasets: [
-            {
-                data: [],
-                backgroundColor: [],
-                borderWidth: 2,
-                borderColor: []
-            }
-        ]
-    });
+    const [dataLineTemperature, setdataLineTemperature] = useState({});
+    const [dataLineWindSpeed, setdataLineWindSpeed] = useState({});
+    const [dataBarHumidity, setdataBarHumidity] = useState({});
+    const [dataBarUV, setdataBarUV] = useState({});
     const [devices, setDevices] = useState([]);
     const [selectedComparisonDevices, setselectedComparisonDevices] = useState([]);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
@@ -258,10 +190,10 @@ export function Conditions(props){
         trackPromise(fetchData().catch(console.error));
     }, []);
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (deviceid) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/getconditions/${props.deviceId}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/getconditions/${deviceid}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -273,13 +205,15 @@ export function Conditions(props){
                     return newArray;
                 });
         }
-        trackPromise(fetchData().catch(console.error));
+        trackPromise(fetchData(props.deviceId).catch(console.error));
+        for (var i = 0; i < selectedComparisonDevices.length; i++)
+            trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedRaw]);
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (deviceid) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${props.deviceId}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${deviceid}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -291,13 +225,15 @@ export function Conditions(props){
                     return newArray;
                 });
         }
-        trackPromise(fetchData().catch(console.error));
+        trackPromise(fetchData(props.deviceId).catch(console.error));
+        for (var i = 0; i < selectedComparisonDevices.length; i++)
+            trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedAvg]);
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (deviceid) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlyminconditions/${props.deviceId}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlyminconditions/${deviceid}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -309,13 +245,15 @@ export function Conditions(props){
                     return newArray;
                 });
         }
-        trackPromise(fetchData().catch(console.error));
+        trackPromise(fetchData(props.deviceId).catch(console.error));
+        for (var i = 0; i < selectedComparisonDevices.length; i++)
+            trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedMin]);
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (deviceid) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${props.deviceId}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${deviceid}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -327,13 +265,15 @@ export function Conditions(props){
                     return newArray;
                 });
         }
-        trackPromise(fetchData().catch(console.error));
+        trackPromise(fetchData(props.deviceId).catch(console.error));
+        for (var i = 0; i < selectedComparisonDevices.length; i++)
+            trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedMax]);
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchData = async (deviceid) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlymedconditions/${props.deviceId}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlymedconditions/${deviceid}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -345,7 +285,9 @@ export function Conditions(props){
                     return newArray;
                 });
         }
-        trackPromise(fetchData().catch(console.error));
+        trackPromise(fetchData(props.deviceId).catch(console.error));
+        for (var i = 0; i < selectedComparisonDevices.length; i++)
+            trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedMed]);
     useEffect(() => {
         const updateChartData = () => {
@@ -360,69 +302,86 @@ export function Conditions(props){
                 return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
             });
             console.log(lbls);
-            setdataLineTemperature((prev) => ({
-                ...prev,
+            setdataLineTemperature({
                 labels: lbls,
-                datasets: [{
-                    ...prev.datasets[0],
-                    label: conditions.length !== 0 ? conditions[0][0].deviceid:"",
-                    data: conditions.length !== 0 ? conditions[0].map(v => v.temperature):[]
-                }]
-            }));
-            setdataLineWindSpeed((prev) => ({
-                ...prev,
+                datasets: conditions.map(v => {
+                    var r = Math.floor(Math.random() * (255 + 1));
+                    var g = Math.floor(Math.random() * (255 + 1));
+                    var b = Math.floor(Math.random() * (255 + 1));
+                     return {                       
+                        lineTension: 0.3,                      
+                        borderColor: "rgb(" + r + "," + g + "," + b + ")",
+                        borderCapStyle: "butt",
+                        borderDash: [],
+                        borderDashOffset: 0.0,
+                        borderJoinStyle: "miter",
+                        pointBackgroundColor: "rgb(" + r + "," + g + "," + b + ")",
+                        pointBorderWidth: 10,
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: "rgb(0, 0, 0)",
+                        pointHoverBorderWidth: 2,
+                        pointRadius: 1,
+                        pointHitRadius: 10,
+                        label: v[0].deviceid,
+                        data: v.map(x=>x.temperature)
+                     }                   
+                })
+            });
+            setdataLineWindSpeed({
                 labels: lbls,
-                datasets: [{
-                    ...prev.datasets[0],
-                    label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
-                    data: conditions.length !== 0 ? conditions[0].map(v => v.windspeed):[]
-                }]
-            }));
-            setdataBarHumidity((prev) => ({
-                ...prev,
+                datasets: conditions.map(v => {
+                    var r = Math.floor(Math.random() * (255 + 1));
+                    var g = Math.floor(Math.random() * (255 + 1));
+                    var b = Math.floor(Math.random() * (255 + 1));
+                    return {
+                        lineTension: 0.3,
+                        borderColor: "rgb(" + r + "," + g + "," + b + ")",
+                        borderCapStyle: "butt",
+                        borderDash: [],
+                        borderDashOffset: 0.0,
+                        borderJoinStyle: "miter",
+                        pointBackgroundColor: "rgb(" + r + "," + g + "," + b + ")",
+                        pointBorderWidth: 10,
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: "rgb(0, 0, 0)",
+                        pointHoverBorderWidth: 2,
+                        pointRadius: 1,
+                        pointHitRadius: 10,
+                        label: v[0].deviceid,
+                        data: v.map(x => x.windspeed)
+                    }
+                })
+            });
+            setdataBarHumidity({
                 labels: lbls,
-                datasets: [{
-                    ...prev.datasets[0],
-                    label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
-                    data: conditions.length !== 0 ? conditions[0].map(v => v.humidity):[]
-                }]
-            }));
-            setdataBarUV((prev) => ({
-                ...prev,
+                datasets: conditions.map(v => {
+                    var r = Math.floor(Math.random() * (255 + 1));
+                    var g = Math.floor(Math.random() * (255 + 1));
+                    var b = Math.floor(Math.random() * (255 + 1));
+                    return {
+                        backgroundColor: "rgba(" + r + "," + g + "," + b + ", .4)",
+                        borderWidth: 2,
+                        borderColor: "rgba(" + r + "," + g + "," + b + ", 1)",
+                        label: v[0].deviceid,
+                        data: v.map(x => x.humidity)
+                    }
+                })
+            });
+            setdataBarUV({
                 labels: lbls,
-                datasets: [{
-                    ...prev.datasets[0],
-                    label: conditions.length !== 0 ? conditions[0][0].deviceid : "",
-                    data: conditions.length !== 0 ? conditions[0].map(v => v.uvindex):[],
-                    backgroundColor: conditions.length !== 0 ?
-                        conditions[0].map(v => {
-                        if (v.uvindex < 3)
-                            return "rgb(40, 180, 99, 0.4)"
-                        else if (v.uvindex < 6)
-                            return "rgb(241, 196, 15, 0.4)"
-                        else if (v.uvindex < 8)
-                            return "rgb(211, 84, 0, 0.4)"
-                        else if (v.uvindex < 11)
-                            return "rgb(169, 50, 38, 0.4)"
-                        else
-                            return "rgb(91, 44, 111, 0.4)"
-                        })
-                        : "rgb(40, 180, 99, 0.4)",
-                    borderColor: conditions.length !== 0 ?
-                        conditions[0].map(v => {
-                        if (v.uvindex < 3)
-                            return "rgb(40, 180, 99, 1)"
-                        else if (v.uvindex < 6)
-                            return "rgb(241, 196, 15, 1)"
-                        else if (v.uvindex < 8)
-                            return "rgb(211, 84, 0, 1)"
-                        else if (v.uvindex < 11)
-                            return "rgb(169, 50, 38, 1)"
-                        else
-                            return "rgb(91, 44, 111, 1)"
-                        }) : "rgb(40, 180, 99, 1)"
-                }]
-            }));
+                datasets: conditions.map(v => {
+                    var r = Math.floor(Math.random() * (255 + 1));
+                    var g = Math.floor(Math.random() * (255 + 1));
+                    var b = Math.floor(Math.random() * (255 + 1));
+                    return {
+                        label: v[0].deviceid,
+                        data: v.map(x => x.uvindex),
+                        backgroundColor: "rgba(" + r + "," + g + "," + b + ", .4)",
+                        borderWidth: 2,
+                        borderColor: "rgba(" + r + "," + g + "," + b + ", 1)",
+                    }
+                })                
+            });
         }
         updateChartData();
     }, [conditions]);
@@ -466,10 +425,10 @@ export function Conditions(props){
         });      
     };
     const onSelect = (selectedList) => {
-        setselectedComparisonDevices(selectedList.map(item => item.value));
+        setselectedComparisonDevices(selectedList);
     };
     const onRemove = (selectedList) => {
-        setselectedComparisonDevices(selectedList.map(item => item.value));
+        setselectedComparisonDevices(selectedList);
     };
 
     const sortedIndex = (array, value) => {
@@ -549,6 +508,7 @@ export function Conditions(props){
                             displayValue="name"
                             onSelect={onSelect}
                             onRemove={onRemove}
+                            selectedValues={selectedComparisonDevices}
                             showCheckbox
                             placeholder="Selektuj uređaje za poređenje..."
                             hidePlaceholder
