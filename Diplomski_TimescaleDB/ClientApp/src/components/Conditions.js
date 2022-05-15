@@ -302,20 +302,22 @@ export function Conditions(props){
                 return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
             });
             console.log(lbls);
+            var colors = conditions.map(v =>  ({
+                'r': Math.floor(Math.random() * (255 + 1)),
+                'g': Math.floor(Math.random() * (255 + 1)),
+                'b': Math.floor(Math.random() * (255 + 1))
+            }));
             setdataLineTemperature({
                 labels: lbls,
-                datasets: conditions.map(v => {
-                    var r = Math.floor(Math.random() * (255 + 1));
-                    var g = Math.floor(Math.random() * (255 + 1));
-                    var b = Math.floor(Math.random() * (255 + 1));
+                datasets: conditions.map((v,ind) => {
                      return {                       
                         lineTension: 0.3,                      
-                        borderColor: "rgb(" + r + "," + g + "," + b + ")",
+                        borderColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
                         borderCapStyle: "butt",
                         borderDash: [],
                         borderDashOffset: 0.0,
                         borderJoinStyle: "miter",
-                        pointBackgroundColor: "rgb(" + r + "," + g + "," + b + ")",
+                        pointBackgroundColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
                         pointBorderWidth: 10,
                         pointHoverRadius: 5,
                         pointHoverBackgroundColor: "rgb(0, 0, 0)",
@@ -329,18 +331,15 @@ export function Conditions(props){
             });
             setdataLineWindSpeed({
                 labels: lbls,
-                datasets: conditions.map(v => {
-                    var r = Math.floor(Math.random() * (255 + 1));
-                    var g = Math.floor(Math.random() * (255 + 1));
-                    var b = Math.floor(Math.random() * (255 + 1));
+                datasets: conditions.map((v,ind) => {
                     return {
                         lineTension: 0.3,
-                        borderColor: "rgb(" + r + "," + g + "," + b + ")",
+                        borderColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
                         borderCapStyle: "butt",
                         borderDash: [],
                         borderDashOffset: 0.0,
                         borderJoinStyle: "miter",
-                        pointBackgroundColor: "rgb(" + r + "," + g + "," + b + ")",
+                        pointBackgroundColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
                         pointBorderWidth: 10,
                         pointHoverRadius: 5,
                         pointHoverBackgroundColor: "rgb(0, 0, 0)",
@@ -354,14 +353,11 @@ export function Conditions(props){
             });
             setdataBarHumidity({
                 labels: lbls,
-                datasets: conditions.map(v => {
-                    var r = Math.floor(Math.random() * (255 + 1));
-                    var g = Math.floor(Math.random() * (255 + 1));
-                    var b = Math.floor(Math.random() * (255 + 1));
+                datasets: conditions.map((v,ind) => {
                     return {
-                        backgroundColor: "rgba(" + r + "," + g + "," + b + ", .4)",
+                        backgroundColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", .4)",
                         borderWidth: 2,
-                        borderColor: "rgba(" + r + "," + g + "," + b + ", 1)",
+                        borderColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", 1)",
                         label: v[0].deviceid,
                         data: v.map(x => x.humidity)
                     }
@@ -369,16 +365,13 @@ export function Conditions(props){
             });
             setdataBarUV({
                 labels: lbls,
-                datasets: conditions.map(v => {
-                    var r = Math.floor(Math.random() * (255 + 1));
-                    var g = Math.floor(Math.random() * (255 + 1));
-                    var b = Math.floor(Math.random() * (255 + 1));
+                datasets: conditions.map((v,ind) => {
                     return {
                         label: v[0].deviceid,
                         data: v.map(x => x.uvindex),
-                        backgroundColor: "rgba(" + r + "," + g + "," + b + ", .4)",
+                        backgroundColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", .4)",
                         borderWidth: 2,
-                        borderColor: "rgba(" + r + "," + g + "," + b + ", 1)",
+                        borderColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", 1)",
                     }
                 })                
             });

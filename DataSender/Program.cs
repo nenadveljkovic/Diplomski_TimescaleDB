@@ -1,16 +1,16 @@
-﻿using RabbitMQ.Client;
+﻿using CsvHelper;
+using Diplomski_TimescaleDB.Models;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using Newtonsoft.Json;
-using CsvHelper;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Text;
-using Diplomski_TimescaleDB.Models;
 using System.Threading;
 
-namespace Weather_pro_1
+namespace DataSender
 {
     class Program
     {
@@ -45,19 +45,18 @@ namespace Weather_pro_1
                 var body = Encoding.UTF8.GetBytes(jsonString);
                 channel.BasicPublish("", "conditions", null, body);
             }
-        } 
-        
+        }
+
         static void Main(string[] args)
         {
             Thread t;
-            ThreadWeatherStation tws; 
-            for(int i=1;i<=10;i++)
+            ThreadWeatherStation tws;
+            for (int i = 1; i <= 10; i++)
             {
-                tws = new ThreadWeatherStation("weather-pro-"+i.ToString());
+                tws = new ThreadWeatherStation("weather-pro-" + i.ToString());
                 t = new Thread(new ThreadStart(tws.ThreadBody));
                 t.Start();
-            }            
+            }
         }
     }
 }
-

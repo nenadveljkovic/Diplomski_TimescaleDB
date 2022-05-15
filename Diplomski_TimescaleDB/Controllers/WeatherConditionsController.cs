@@ -18,7 +18,8 @@ namespace Diplomski_TimescaleDB.Controllers
         public async Task<ActionResult<List<Device>>> GetDevices()
         {
             List<Device> response = new List<Device>();
-            var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
+            var timescaleConnection = 
+                new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
             try
             {
                 timescaleConnection.Open();
@@ -268,7 +269,7 @@ namespace Diplomski_TimescaleDB.Controllers
                 using (timescaleConnection)
                 {
                     string sql = @"SELECT date_trunc('hour', time) ""hour""," +
-                        "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY temperature) med_temp," +
+                         "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY temperature) med_temp," +
                          "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY humidity) med_hum," +
                          "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY wind_speed) med_wind," +
                          "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY uv_index) med_uvi,c.device_id " +
