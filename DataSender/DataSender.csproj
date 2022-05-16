@@ -6,44 +6,84 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="weather-pro-1.csv" />
+    <None Remove="weather-pro-10.csv" />
     <None Remove="weather-pro-10_data.csv" />
     <None Remove="weather-pro-1_data.csv" />
+    <None Remove="weather-pro-2.csv" />
     <None Remove="weather-pro-2_data.csv" />
+    <None Remove="weather-pro-3.csv" />
     <None Remove="weather-pro-3_data.csv" />
+    <None Remove="weather-pro-4.csv" />
     <None Remove="weather-pro-4_data.csv" />
+    <None Remove="weather-pro-5.csv" />
     <None Remove="weather-pro-5_data.csv" />
+    <None Remove="weather-pro-6.csv" />
     <None Remove="weather-pro-6_data.csv" />
+    <None Remove="weather-pro-7.csv" />
     <None Remove="weather-pro-7_data.csv" />
+    <None Remove="weather-pro-8.csv" />
     <None Remove="weather-pro-8_data.csv" />
+    <None Remove="weather-pro-9.csv" />
     <None Remove="weather-pro-9_data.csv" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="weather-pro-1.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="weather-pro-10.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="weather-pro-10_data.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="weather-pro-1_data.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="weather-pro-2.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="weather-pro-2_data.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="weather-pro-3.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="weather-pro-3_data.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="weather-pro-4.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="weather-pro-4_data.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="weather-pro-5.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="weather-pro-5_data.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="weather-pro-6.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="weather-pro-6_data.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="weather-pro-7.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="weather-pro-7_data.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="weather-pro-8.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="weather-pro-8_data.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="weather-pro-9.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="weather-pro-9_data.csv">
@@ -54,7 +94,9 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Npgsql" Version="6.0.4" />
     <PackageReference Include="RabbitMQ.Client" Version="6.2.4" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

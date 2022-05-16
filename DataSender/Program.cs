@@ -1,9 +1,11 @@
 ﻿using CsvHelper;
 using Diplomski_TimescaleDB.Models;
 using Newtonsoft.Json;
+using Npgsql;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -29,29 +31,53 @@ namespace DataSender
                 };
                 using var connection = factory.CreateConnection();
                 using var channel = connection.CreateModel();
-                channel.QueueDeclare("conditions",
-                    durable: true,
-                    exclusive: false,
-                    autoDelete: false,
-                    arguments: null);
-                List<WeatherConditions> conditions;
-                string jsonString;
-                using var fileReader = new StreamReader(weatherStationName + @"_data.csv");
-                using (var csv = new CsvReader(fileReader, CultureInfo.InvariantCulture))
+                channel.QueueDeclare("devices", durable: true, exclusive: false, autoDelete: false, arguments: null);
+                channel.QueueDeclare("conditions", durable: true, exclusive: false, autoDelete: false, arguments: null);
+                Device device;
+                string jsonStringDevice;
+                using var fileReaderDevice = new StreamReader(weatherStationName + @".csv");
+                using (var csvDevice = new CsvReader(fileReaderDevice, CultureInfo.InvariantCulture))
                 {
-                    conditions = csv.GetRecords<WeatherConditions>().ToList();
+                    csvDevice.Read();
+                    device = csvDevice.GetRecord<Device>();
                 }
-                jsonString = JsonConvert.SerializeObject(conditions);
-                var body = Encoding.UTF8.GetBytes(jsonString);
+                jsonStringDevice = JsonConvert.SerializeObject(device);
+                var body = Encoding.UTF8.GetBytes(jsonStringDevice);
+                channel.BasicPublish("", "devices", null, body);
+                List<WeatherConditions> conditions;
+                string jsonStringConditions;
+                using var fileReaderConditions = new StreamReader(weatherStationName + @"_data.csv");
+                using (var csvConditions = new CsvReader(fileReaderConditions, CultureInfo.InvariantCulture))
+                {
+                    conditions = csvConditions.GetRecords<WeatherConditions>().ToList();                    
+                }
+                jsonStringConditions = JsonConvert.SerializeObject(conditions);
+                body = Encoding.UTF8.GetBytes(jsonStringConditions);
                 channel.BasicPublish("", "conditions", null, body);
             }
         }
 
         static void Main(string[] args)
         {
+            var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
+            timescaleConnection.Open();
+            using (timescaleConnection)
+            {
+                string sql = @"DELETE FROM conditions;";
+                using (var command = new NpgsqlCommand(sql, timescaleConnection))
+                {
+                    command.ExecuteNonQuery();
+                }
+                sql = @"DELETE FROM devices;";
+                using (var command = new NpgsqlCommand(sql, timescaleConnection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
             Thread t;
             ThreadWeatherStation tws;
-            for (int i = 1; i <= 10; i++)
+            int n = Int32.Parse(ConfigurationManager.AppSettings["NumberOfDevices"]);
+            for (int i = 1; i <= n; i++)
             {
                 tws = new ThreadWeatherStation("weather-pro-" + i.ToString());
                 t = new Thread(new ThreadStart(tws.ThreadBody));

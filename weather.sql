@@ -16,8 +16,7 @@ CREATE TABLE "conditions"(
 	wind_speed	 NUMERIC,
 	uv_index	 NUMERIC,
 	device_id    TEXT NOT NULL,
-	PRIMARY KEY (time, device_id),
-	FOREIGN KEY (device_id) REFERENCES devices( device_id)
+	PRIMARY KEY (time, device_id)
 );
 
 CREATE INDEX ON "conditions"(time DESC);
