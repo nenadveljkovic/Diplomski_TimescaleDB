@@ -7,7 +7,8 @@ namespace Diplomski_TimescaleDB.Models
 {
     public class Device
     {
-        public string device_id { get; set; }
+        public int device_id { get; set; }
+        public string device_name { get; set; }
         public string location { get; set; }
         public string environment { get; set; }
         public double latitude { get; set; }

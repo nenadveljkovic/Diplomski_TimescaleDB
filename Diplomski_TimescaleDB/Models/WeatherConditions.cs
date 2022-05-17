@@ -12,6 +12,6 @@ namespace Diplomski_TimescaleDB.Models
         public Double humidity { get; set; }
         public Double windspeed { get; set; }
         public Double uvindex { get; set; }
-        public String deviceid { get; set; }
+        public String devicename { get; set; }
     }
 }

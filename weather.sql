@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS "devices";
 CREATE TABLE "devices"(
-    device_id    TEXT,
+	device_id	 NUMERIC,
+    device_name  TEXT UNIQUE NOT NULL,
     location     TEXT,
     environment  TEXT,
 	latitude DOUBLE PRECISION,
@@ -15,11 +16,11 @@ CREATE TABLE "conditions"(
     humidity     NUMERIC,
 	wind_speed	 NUMERIC,
 	uv_index	 NUMERIC,
-	device_id    TEXT NOT NULL,
-	PRIMARY KEY (time, device_id)
+	device_name  TEXT NOT NULL,
+	PRIMARY KEY (time, device_name)
 );
 
 CREATE INDEX ON "conditions"(time DESC);
-CREATE INDEX ON "conditions"(device_id, time DESC);
+CREATE INDEX ON "conditions"(device_name, time DESC);
 -- 86400000000 is in usecs and is equal to 1 day
 SELECT create_hypertable('conditions', 'time', chunk_time_interval => 86400000000);

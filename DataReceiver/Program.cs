@@ -44,7 +44,7 @@ namespace DataReceiver
                         string sql = @"INSERT INTO conditions VALUES ";
                         foreach (WeatherConditions c in weatherConditions)
                             sql += String.Format("('{0}', {1}, {2}, {3}, {4}, '{5}'),", c.time.ToString("yyyy-MM-dd HH:mm:ss"), 
-                                c.temperature, c.humidity, c.windspeed, c.uvindex, c.deviceid);
+                                c.temperature, c.humidity, c.windspeed, c.uvindex, c.devicename);
                         sql = sql.Remove(sql.Length - 1, 1);
                         sql += " ON CONFLICT DO NOTHING;";
                         using (var command = new NpgsqlCommand(sql, timescaleConnection))
@@ -57,8 +57,8 @@ namespace DataReceiver
                     {
                         Device device = JsonConvert.DeserializeObject<Device>(message);
                         string sql = @"INSERT INTO devices VALUES " +
-                        String.Format("('{0}', '{1}', '{2}', {3}, {4})", device.device_id, device.location,
-                                device.environment, device.latitude, device.longitude);
+                        String.Format("({0}, '{1}', '{2}', '{3}', {4}, {5})", device.device_id,device.device_name,
+                        device.location, device.environment, device.latitude, device.longitude);
                         using (var command = new NpgsqlCommand(sql, timescaleConnection))
                         {
                             int nRows = command.ExecuteNonQuery();

@@ -33,11 +33,12 @@ namespace Diplomski_TimescaleDB.Controllers
                             while (rdr.Read())
                                 response.Add(new Device
                                 {
-                                    device_id = rdr.GetString(0),
-                                    location = rdr.GetString(1),
-                                    environment = rdr.GetString(2),
-                                    latitude = rdr.GetDouble(3),
-                                    longitude = rdr.GetDouble(4)
+                                    device_id = rdr.GetInt32(0),
+                                    device_name = rdr.GetString(1),
+                                    location = rdr.GetString(2),
+                                    environment = rdr.GetString(3),
+                                    latitude = rdr.GetDouble(4),
+                                    longitude = rdr.GetDouble(5)
                                 });
                         }
                     }
@@ -85,7 +86,7 @@ namespace Diplomski_TimescaleDB.Controllers
                                     humidity = rdr.GetDouble(2),
                                     windspeed = rdr.GetDouble(3),
                                     uvindex = rdr.GetDouble(4),
-                                    deviceid = rdr.GetString(5)
+                                    devicename = rdr.GetString(5)
                                 });
                         }
                     }
@@ -135,7 +136,7 @@ namespace Diplomski_TimescaleDB.Controllers
                                     humidity = rdr.GetDouble(2),
                                     windspeed = rdr.GetDouble(3),
                                     uvindex = rdr.GetDouble(4),
-                                    deviceid = rdr.GetString(5)
+                                    devicename = rdr.GetString(5)
                                 });
                         }
                     }
@@ -185,7 +186,7 @@ namespace Diplomski_TimescaleDB.Controllers
                                     humidity = rdr.GetDouble(2),
                                     windspeed = rdr.GetDouble(3),
                                     uvindex = rdr.GetDouble(4),
-                                    deviceid = rdr.GetString(5)
+                                    devicename = rdr.GetString(5)
                                 });
                         }
                     }
@@ -235,7 +236,7 @@ namespace Diplomski_TimescaleDB.Controllers
                                     humidity = rdr.GetDouble(2),
                                     windspeed = rdr.GetDouble(3),
                                     uvindex = rdr.GetDouble(4),
-                                    deviceid = rdr.GetString(5)
+                                    devicename = rdr.GetString(5)
                                 });
                         }
                     }
@@ -288,7 +289,7 @@ namespace Diplomski_TimescaleDB.Controllers
                                     humidity = rdr.GetDouble(2),
                                     windspeed = rdr.GetDouble(3),
                                     uvindex = rdr.GetDouble(4),
-                                    deviceid = rdr.GetString(5)
+                                    devicename = rdr.GetString(5)
                                 });
                         }
                     }

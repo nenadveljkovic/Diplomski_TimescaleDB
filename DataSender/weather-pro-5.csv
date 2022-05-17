@@ -1,2 +1,2 @@
-device_id,location,environment,latitude,longitude
-weather-pro-5,Trg Svetog Djordja Kragujevac,napolju,44.011469,20.917697
+device_id,device_name,location,environment,latitude,longitude
+5,weather-pro-5,Trg Svetog Djordja Kragujevac,napolju,44.011469,20.917697

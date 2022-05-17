@@ -1,2 +1,2 @@
-device_id,location,environment,latitude,longitude
-weather-pro-8,Obrenoviceva Nis,napolju,43.319977,21.895202
+device_id,device_name,location,environment,latitude,longitude
+8,weather-pro-8,Obrenoviceva Nis,napolju,43.319977,21.895202

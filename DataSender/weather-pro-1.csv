@@ -1,2 +1,2 @@
-device_id,location,environment,latitude,longitude
-weather-pro-1,Josifa Pancica Nis,napolju,43.317366,21.900316
+device_id,device_name,location,environment,latitude,longitude
+1,weather-pro-1,Josifa Pancica Nis,napolju,43.317366,21.900316

@@ -1,2 +1,2 @@
-device_id,location,environment,latitude,longitude
-weather-pro-4,Bulevar Oslobodjenja Beograd,napolju,44.785603,20.465964
+device_id,device_name,location,environment,latitude,longitude
+4,weather-pro-4,Bulevar Oslobodjenja Beograd,napolju,44.785603,20.465964

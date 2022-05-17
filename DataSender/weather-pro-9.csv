@@ -1,2 +1,2 @@
-device_id,location,environment,latitude,longitude
-weather-pro-9,Vojvode Misica Nis,napolju,43.319546,21.906242
+device_id,device_name,location,environment,latitude,longitude
+9,weather-pro-9,Vojvode Misica Nis,napolju,43.319546,21.906242

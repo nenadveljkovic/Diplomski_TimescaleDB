@@ -1,2 +1,2 @@
-device_id,location,environment,latitude,longitude
-weather-pro-3,Srpskih Vladara Pirot,napolju,43.153052,22.587802
+device_id,device_name,location,environment,latitude,longitude
+3,weather-pro-3,Srpskih Vladara Pirot,napolju,43.153052,22.587802
