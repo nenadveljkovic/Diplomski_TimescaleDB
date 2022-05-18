@@ -10,7 +10,7 @@ export function Layout () {
     return (
       <div>
             <NavMenu />
-            <Conditions deviceId={params.deviceId} />
+            <Conditions deviceName={params.deviceName} />
       </div>
     );
 }

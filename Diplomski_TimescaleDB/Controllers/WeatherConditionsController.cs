@@ -61,8 +61,8 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetConditions/{deviceid}/{fromdate}/{todate}")]
-        public async Task<ActionResult<List<WeatherConditions>>> GetConditions(string deviceid, string fromdate, string todate)
+        [Route("GetConditions/{devicename}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetConditions(string devicename, string fromdate, string todate)
         {
             List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
@@ -73,7 +73,7 @@ namespace Diplomski_TimescaleDB.Controllers
                 {
                     string sql = @"SELECT * FROM conditions c " +
                         "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
-                         "' AND c.device_id = '" + deviceid + "' ORDER BY c.time ASC;";
+                         "' AND c.device_name = '" + devicename + "' ORDER BY c.time ASC;";
                     using (var command = new NpgsqlCommand(sql, timescaleConnection))
                     {
                         using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
@@ -109,8 +109,8 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetHourlyAvgConditions/{deviceid}/{fromdate}/{todate}")]
-        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyAvgConditions(string deviceid, string fromdate, string todate)
+        [Route("GetHourlyAvgConditions/{devicename}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyAvgConditions(string devicename, string fromdate, string todate)
         {
             List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
@@ -120,10 +120,10 @@ namespace Diplomski_TimescaleDB.Controllers
                 using (timescaleConnection)
                 {
                     string sql = @"SELECT date_trunc('hour', time) ""hour"",round(avg(temperature)) avg_temp," +
-                         "round(avg(humidity)) avg_hum,round(avg(wind_speed)) avg_wind,round(avg(uv_index)) avg_uvi,c.device_id " +
+                         "round(avg(humidity)) avg_hum,round(avg(wind_speed)) avg_wind,round(avg(uv_index)) avg_uvi,c.device_name " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
-                         "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
+                         "' AND c.device_name = '" + devicename + @"' GROUP BY ""hour"",c.device_name ORDER BY ""hour"" ASC;";
                     using (var command = new NpgsqlCommand(sql, timescaleConnection))
                     {
                         using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
@@ -159,8 +159,8 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetHourlyMinConditions/{deviceid}/{fromdate}/{todate}")]
-        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMinConditions(string deviceid, string fromdate, string todate)
+        [Route("GetHourlyMinConditions/{devicename}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMinConditions(string devicename, string fromdate, string todate)
         {
             List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
@@ -170,10 +170,10 @@ namespace Diplomski_TimescaleDB.Controllers
                 using (timescaleConnection)
                 {
                     string sql = @"SELECT date_trunc('hour', time) ""hour"",round(min(temperature)) min_temp," +
-                         "round(min(humidity)) min_hum,round(min(wind_speed)) min_wind,round(min(uv_index)) min_uvi,c.device_id " +
+                         "round(min(humidity)) min_hum,round(min(wind_speed)) min_wind,round(min(uv_index)) min_uvi,c.device_name " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
-                         "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
+                         "' AND c.device_name = '" + devicename + @"' GROUP BY ""hour"",c.device_name ORDER BY ""hour"" ASC;";
                     using (var command = new NpgsqlCommand(sql, timescaleConnection))
                     {
                         using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
@@ -209,8 +209,8 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetHourlyMaxConditions/{deviceid}/{fromdate}/{todate}")]
-        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMaxConditions(string deviceid, string fromdate, string todate)
+        [Route("GetHourlyMaxConditions/{devicename}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMaxConditions(string devicename, string fromdate, string todate)
         {
             List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
@@ -220,10 +220,10 @@ namespace Diplomski_TimescaleDB.Controllers
                 using (timescaleConnection)
                 {
                     string sql = @"SELECT date_trunc('hour', time) ""hour"",round(max(temperature)) max_temp," +
-                         "round(max(humidity)) max_hum,round(max(wind_speed)) max_wind,round(max(uv_index)) max_uvi,c.device_id " +
+                         "round(max(humidity)) max_hum,round(max(wind_speed)) max_wind,round(max(uv_index)) max_uvi,c.device_name " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
-                         "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
+                         "' AND c.device_name = '" + devicename + @"' GROUP BY ""hour"",c.device_name ORDER BY ""hour"" ASC;";
                     using (var command = new NpgsqlCommand(sql, timescaleConnection))
                     {
                         using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())
@@ -259,8 +259,8 @@ namespace Diplomski_TimescaleDB.Controllers
         }
 
         [HttpGet]
-        [Route("GetHourlyMedConditions/{deviceid}/{fromdate}/{todate}")]
-        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMedConditions(string deviceid, string fromdate, string todate)
+        [Route("GetHourlyMedConditions/{devicename}/{fromdate}/{todate}")]
+        public async Task<ActionResult<List<WeatherConditions>>> GetHourlyMedConditions(string devicename, string fromdate, string todate)
         {
             List<WeatherConditions> response = new List<WeatherConditions>();
             var timescaleConnection = new NpgsqlConnection("Server=localhost;Username=postgres;Database=meteo;Port=5432;Password=admin");
@@ -273,10 +273,10 @@ namespace Diplomski_TimescaleDB.Controllers
                          "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY temperature) med_temp," +
                          "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY humidity) med_hum," +
                          "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY wind_speed) med_wind," +
-                         "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY uv_index) med_uvi,c.device_id " +
+                         "PERCENTILE_DISC(0.5) WITHIN GROUP(ORDER BY uv_index) med_uvi,c.device_name " +
                          "FROM conditions c " +
                          "WHERE DATE(c.time) BETWEEN '" + fromdate + "' AND '" + todate +
-                         "' AND c.device_id = '" + deviceid + @"' GROUP BY ""hour"",c.device_id ORDER BY ""hour"" ASC;";
+                         "' AND c.device_name = '" + devicename + @"' GROUP BY ""hour"",c.device_name ORDER BY ""hour"" ASC;";
                     using (var command = new NpgsqlCommand(sql, timescaleConnection))
                     {
                         using (NpgsqlDataReader rdr = await command.ExecuteReaderAsync())

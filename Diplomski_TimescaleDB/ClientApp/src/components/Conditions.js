@@ -163,6 +163,7 @@ export function Conditions(props){
     const [dataBarUV, setdataBarUV] = useState({});
     const [devices, setDevices] = useState([]);
     const [selectedComparisonDevices, setselectedComparisonDevices] = useState([]);
+    const [colors, setColors] = useState([]);
     const [selectedCondition, setSelectedCondition] = useState([true, false, false, false]);
     const [selectedAggregation, setSelectedAggregation] = useState([true, false, false, false,false]);
     const [selectedAggregationName, setSelectedAggregationName] = useState('Neobrađeni podaci');
@@ -180,20 +181,28 @@ export function Conditions(props){
             const json = await data.json();
             setDevices(
                 json.map(device => ({
-                    name: device.device_id + ' - ' + device.location,
-                    value: device.device_id
+                    name: device.device_name + ' - ' + device.location,
+                    value: device.device_name
                 })).filter(function (obj) {
-                    return obj.value !== props.deviceId
+                    return obj.value !== props.deviceName
                 })
             );
+            setColors(
+                json.map(device => ({
+                    'devicename': device.device_name,
+                    'r': Math.floor(Math.random() * (255 + 1)),
+                    'g': Math.floor(Math.random() * (255 + 1)),
+                    'b': Math.floor(Math.random() * (255 + 1))
+                }))
+            );            
         }
         trackPromise(fetchData().catch(console.error));
     }, []);
     useEffect(() => {
-        const fetchData = async (deviceid) => {
+        const fetchData = async (devicename) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/getconditions/${deviceid}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/getconditions/${devicename}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -201,19 +210,18 @@ export function Conditions(props){
                     for (var i = 0; i < prev.length; i++)
                         newArray[i] = prev[i].slice();
                     newArray.push(json);
-                    console.log(newArray);
                     return newArray;
                 });
         }
-        trackPromise(fetchData(props.deviceId).catch(console.error));
+        trackPromise(fetchData(props.deviceName).catch(console.error));
         for (var i = 0; i < selectedComparisonDevices.length; i++)
             trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedRaw]);
     useEffect(() => {
-        const fetchData = async (deviceid) => {
+        const fetchData = async (devicename) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${deviceid}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlyavgconditions/${devicename}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -221,19 +229,18 @@ export function Conditions(props){
                     for (var i = 0; i < prev.length; i++)
                         newArray[i] = prev[i].slice();
                     newArray.push(json);
-                    console.log(newArray);
                     return newArray;
                 });
         }
-        trackPromise(fetchData(props.deviceId).catch(console.error));
+        trackPromise(fetchData(props.deviceName).catch(console.error));
         for (var i = 0; i < selectedComparisonDevices.length; i++)
             trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedAvg]);
     useEffect(() => {
-        const fetchData = async (deviceid) => {
+        const fetchData = async (devicename) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlyminconditions/${deviceid}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlyminconditions/${devicename}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -241,19 +248,18 @@ export function Conditions(props){
                     for (var i = 0; i < prev.length; i++)
                         newArray[i] = prev[i].slice();
                     newArray.push(json);
-                    console.log(newArray);
                     return newArray;
                 });
         }
-        trackPromise(fetchData(props.deviceId).catch(console.error));
+        trackPromise(fetchData(props.deviceName).catch(console.error));
         for (var i = 0; i < selectedComparisonDevices.length; i++)
             trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedMin]);
     useEffect(() => {
-        const fetchData = async (deviceid) => {
+        const fetchData = async (devicename) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${deviceid}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlymaxconditions/${devicename}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -261,19 +267,18 @@ export function Conditions(props){
                     for (var i = 0; i < prev.length; i++)
                         newArray[i] = prev[i].slice();
                     newArray.push(json);
-                    console.log(newArray);
                     return newArray;
                 });
         }
-        trackPromise(fetchData(props.deviceId).catch(console.error));
+        trackPromise(fetchData(props.deviceName).catch(console.error));
         for (var i = 0; i < selectedComparisonDevices.length; i++)
             trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedMax]);
     useEffect(() => {
-        const fetchData = async (deviceid) => {
+        const fetchData = async (devicename) => {
             const fromdate = `${fromDate.getFullYear()}-${fromDate.getMonth() + 1}-${fromDate.getDate()}`;
             const todate = `${toDate.getFullYear()}-${toDate.getMonth() + 1}-${toDate.getDate()}`;
-            const data = await fetch(`api/weatherconditions/gethourlymedconditions/${deviceid}/${fromdate}/${todate}`);
+            const data = await fetch(`api/weatherconditions/gethourlymedconditions/${devicename}/${fromdate}/${todate}`);
             const json = await data.json();
             if (json.length !== 0)
                 setConditions((prev) => {
@@ -281,11 +286,10 @@ export function Conditions(props){
                     for (var i = 0; i < prev.length; i++)
                         newArray[i] = prev[i].slice();
                     newArray.push(json);
-                    console.log(newArray);
                     return newArray;
                 });
         }
-        trackPromise(fetchData(props.deviceId).catch(console.error));
+        trackPromise(fetchData(props.deviceName).catch(console.error));
         for (var i = 0; i < selectedComparisonDevices.length; i++)
             trackPromise(fetchData(selectedComparisonDevices[i].value).catch(console.error));
     }, [rangeChangedMed]);
@@ -296,82 +300,87 @@ export function Conditions(props){
                 for (var j = 0; j < conditions[i].length; j++)
                     if (!rarray.includes(Date.parse(conditions[i][j].time)))
                         rarray.splice(sortedIndex(rarray, Date.parse(conditions[i][j].time)), 0, Date.parse(conditions[i][j].time));
-            console.log(rarray); 
             var lbls = rarray.map(v => {
                 var date = new Date(v);
                 return date.getFullYear() + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2) + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
             });
-            console.log(lbls);
-            var colors = conditions.map(v =>  ({
-                'r': Math.floor(Math.random() * (255 + 1)),
-                'g': Math.floor(Math.random() * (255 + 1)),
-                'b': Math.floor(Math.random() * (255 + 1))
-            }));
             setdataLineTemperature({
                 labels: lbls,
-                datasets: conditions.map((v,ind) => {
+                datasets: conditions.map((v, ind) => {
+                    var color = colors.filter(function (obj) {
+                        return obj.devicename === v[0].devicename
+                    });
                      return {                       
                         lineTension: 0.3,                      
-                        borderColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
+                         borderColor: "rgb(" + color[0].r + "," + color[0].g + "," + color[0].b + ")",
                         borderCapStyle: "butt",
                         borderDash: [],
                         borderDashOffset: 0.0,
                         borderJoinStyle: "miter",
-                        pointBackgroundColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
+                         pointBackgroundColor: "rgb(" + color[0].r + "," + color[0].g + "," + color[0].b + ")",
                         pointBorderWidth: 10,
                         pointHoverRadius: 5,
                         pointHoverBackgroundColor: "rgb(0, 0, 0)",
                         pointHoverBorderWidth: 2,
                         pointRadius: 1,
                         pointHitRadius: 10,
-                        label: v[0].deviceid,
+                        label: v[0].devicename,
                         data: v.map(x=>x.temperature)
                      }                   
                 })
             });
             setdataLineWindSpeed({
                 labels: lbls,
-                datasets: conditions.map((v,ind) => {
+                datasets: conditions.map((v, ind) => {
+                    var color = colors.filter(function (obj) {
+                        return obj.devicename === v[0].devicename
+                    });
                     return {
                         lineTension: 0.3,
-                        borderColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
+                        borderColor: "rgb(" + color[0].r + "," + color[0].g + "," + color[0].b + ")",
                         borderCapStyle: "butt",
                         borderDash: [],
                         borderDashOffset: 0.0,
                         borderJoinStyle: "miter",
-                        pointBackgroundColor: "rgb(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ")",
+                        pointBackgroundColor: "rgb(" + color[0].r + "," + color[0].g + "," + color[0].b + ")",
                         pointBorderWidth: 10,
                         pointHoverRadius: 5,
                         pointHoverBackgroundColor: "rgb(0, 0, 0)",
                         pointHoverBorderWidth: 2,
                         pointRadius: 1,
                         pointHitRadius: 10,
-                        label: v[0].deviceid,
+                        label: v[0].devicename,
                         data: v.map(x => x.windspeed)
                     }
                 })
             });
             setdataBarHumidity({
                 labels: lbls,
-                datasets: conditions.map((v,ind) => {
+                datasets: conditions.map((v, ind) => {
+                    var color = colors.filter(function (obj) {
+                        return obj.devicename === v[0].devicename
+                    });
                     return {
-                        backgroundColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", .4)",
+                        backgroundColor: "rgba(" + color[0].r + "," + color[0].g + "," + color[0].b + ", .4)",
                         borderWidth: 2,
-                        borderColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", 1)",
-                        label: v[0].deviceid,
+                        borderColor: "rgba(" + color[0].r + "," + color[0].g + "," + color[0].b + ", 1)",
+                        label: v[0].devicename,
                         data: v.map(x => x.humidity)
                     }
                 })
             });
             setdataBarUV({
                 labels: lbls,
-                datasets: conditions.map((v,ind) => {
+                datasets: conditions.map((v, ind) => {
+                    var color = colors.filter(function (obj) {
+                        return obj.devicename === v[0].devicename
+                    });
                     return {
-                        label: v[0].deviceid,
+                        label: v[0].devicename,
                         data: v.map(x => x.uvindex),
-                        backgroundColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", .4)",
+                        backgroundColor: "rgba(" + color[0].r + "," + color[0].g + "," + color[0].b + ", .4)",
                         borderWidth: 2,
-                        borderColor: "rgba(" + colors[ind].r + "," + colors[ind].g + "," + colors[ind].b + ", 1)",
+                        borderColor: "rgba(" + color[0].r + "," + color[0].g + "," + color[0].b + ", 1)",
                     }
                 })                
             });

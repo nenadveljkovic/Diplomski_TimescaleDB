@@ -12,7 +12,7 @@ export default class App extends Component {
     return (
         <div>
             <Route exact path='/' component={Map} />
-            <Route path='/conditions/:deviceId' component={Layout} />
+            <Route path='/conditions/:deviceName' component={Layout} />
         </div>
     );
   }

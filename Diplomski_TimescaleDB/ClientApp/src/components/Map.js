@@ -44,11 +44,11 @@ export function Map(props) {
                     devices.map((device, idx) => (
                         <Marker position={[device.latitude, device.longitude]} key={device.device_id} eventHandlers={{
                             click: (e) => {
-                                history.push(`/conditions/${device.device_id}`);
+                                history.push(`/conditions/${device.device_name}`);
                             },
                         }}>
                             <Tooltip direction="top" offset={[-15.5, -6.5]}>
-                                Uređaj:&nbsp;{device.device_id} <br />
+                                Uređaj:&nbsp;{device.device_name} <br />
                                 Lokacija:&nbsp;{device.location} <br />
                                 Sredina:&nbsp;{device.environment}
                             </Tooltip>
