@@ -422,6 +422,7 @@ export function Conditions(props){
             setRangeChangedMax(!rangeChangedMax);
         else
             setRangeChangedMed(!rangeChangedMed);
+        setSelectedCondition([true, false, false, false]);
         setSelectedAggregation((prev) => {
             return prev.map((sc, ind) => namesAggregation[ind] === selectedAggregationName ? true : false);
         });      
